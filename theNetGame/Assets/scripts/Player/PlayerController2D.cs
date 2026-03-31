@@ -12,6 +12,7 @@ public class PlayerController2D : MonoBehaviour
     [SerializeField] float fallMultiplier = 2.5f;
     [SerializeField] float lowJumpMultiplier = 3.5f;
     bool jumpHeld;
+    bool facingRight = true;
 
     [Header("Jump Assist")]
     [SerializeField] float coyoteTime = 0.1f;
@@ -182,6 +183,16 @@ public class PlayerController2D : MonoBehaviour
         );
 
         rb.linearVelocity = new Vector2(newVelocityX, rb.linearVelocity.y);
+        
+        // Flip character based on movement direction
+        if (moveInput.x > 0 && !facingRight)
+        {
+            Flip();
+        }
+        else if (moveInput.x < 0 && facingRight)
+        {
+            Flip();
+        }
 
         // Jump
         if (jumpPressed && coyoteTimeCounter > 0f)
@@ -201,5 +212,14 @@ public class PlayerController2D : MonoBehaviour
         }
 
         jumpPressed = false;
+    }
+
+    void Flip()
+    {
+        facingRight = !facingRight;
+
+        Vector3 scale = transform.localScale;
+        scale.x *= -1;
+        transform.localScale = scale;
     }
 }
