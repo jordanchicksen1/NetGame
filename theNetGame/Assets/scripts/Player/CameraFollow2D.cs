@@ -10,6 +10,7 @@ public class CameraFollow2D : MonoBehaviour
 
     [Header("Vertical Dead Zone")]
     [SerializeField] float deadZoneHeight = 2f;
+    [SerializeField] float minY = 0f;
 
     void LateUpdate()
     {
@@ -30,9 +31,11 @@ public class CameraFollow2D : MonoBehaviour
             targetY = target.position.y;
         }
 
+        float clampedY = Mathf.Max(targetY, minY);
+
         Vector3 desiredPosition = new Vector3(
             targetX,
-            targetY,
+            clampedY,
             currentPos.z
         );
 
