@@ -14,6 +14,20 @@ public class PlayerController2D : MonoBehaviour
     bool jumpHeld;
     bool facingRight = true;
 
+    [Header("Wall Movement")]
+    [SerializeField] Transform wallCheck;
+    [SerializeField] float wallCheckDistance = 0.3f;
+    [SerializeField] float wallSlideSpeed = 2f;
+    [SerializeField] Vector2 wallJumpForce = new Vector2(10f, 14f);
+    bool isTouchingWall;
+    bool isWallSliding;
+    bool isWallJumping;
+    float wallJumpDirection;
+    [SerializeField] float wallJumpControlDelay = 0.15f;
+    float wallJumpTimer;
+    [SerializeField] float flipLockTime = 0.2f;
+    float flipLockTimer;
+
     [Header("Jump Assist")]
     [SerializeField] float coyoteTime = 0.1f;
     float coyoteTimeCounter;
@@ -69,6 +83,7 @@ public class PlayerController2D : MonoBehaviour
     void FixedUpdate()
     {
         CheckGround();
+        CheckWall();
 
         // Track airtime
         if (isGrounded)
@@ -81,7 +96,27 @@ public class PlayerController2D : MonoBehaviour
         }
 
         HandleGroundPound();
+        HandleWallSlide();
         ApplyMovement();
+
+        if (isGrounded)
+        {
+            isWallJumping = false;
+        }
+
+        if (wallJumpTimer > 0)
+        {
+            wallJumpTimer -= Time.fixedDeltaTime;
+        }
+        else
+        {
+            isWallJumping = false;
+        }
+
+        if (flipLockTimer > 0)
+        {
+            flipLockTimer -= Time.fixedDeltaTime;
+        }
     }
 
     // ---------------- INPUT ----------------
@@ -133,6 +168,28 @@ public class PlayerController2D : MonoBehaviour
         }
     }
 
+    void HandleWallSlide()
+    {
+        bool pushingIntoWall =
+            (isTouchingWall && moveInput.x > 0 && facingRight) ||
+            (isTouchingWall && moveInput.x < 0 && !facingRight);
+
+        if (pushingIntoWall && !isGrounded && rb.linearVelocity.y < 0)
+        {
+            isWallSliding = true;
+
+            // Clamp fall speed instead of forcing it
+            if (rb.linearVelocity.y < -wallSlideSpeed)
+            {
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, -wallSlideSpeed);
+            }
+        }
+        else
+        {
+            isWallSliding = false;
+        }
+    }
+
     void OnJumpPressed(InputAction.CallbackContext context)
     {
         jumpPressed = true;
@@ -166,10 +223,22 @@ public class PlayerController2D : MonoBehaviour
         }
     }
 
+    void CheckWall()
+    {
+        isTouchingWall = Physics2D.Raycast(
+            wallCheck.position,
+            transform.right,
+            wallCheckDistance,
+            groundLayer
+        );
+    }
+
     // ---------------- MOVEMENT ----------------
     void ApplyMovement()
     {
         if (isGroundPounding) return;
+
+        if (isWallJumping && wallJumpTimer > 0f) return;
 
         // Horizontal movement
         float targetSpeed = moveInput.x * maxSpeed;
@@ -183,19 +252,43 @@ public class PlayerController2D : MonoBehaviour
         );
 
         rb.linearVelocity = new Vector2(newVelocityX, rb.linearVelocity.y);
-        
+
         // Flip character based on movement direction
-        if (moveInput.x > 0 && !facingRight)
+        if (flipLockTimer <= 0f)
         {
-            Flip();
-        }
-        else if (moveInput.x < 0 && facingRight)
-        {
-            Flip();
+            if (moveInput.x > 0 && !facingRight)
+            {
+                Flip();
+            }
+            else if (moveInput.x < 0 && facingRight)
+            {
+                Flip();
+            }
         }
 
-        // Jump
-        if (jumpPressed && coyoteTimeCounter > 0f)
+        // Wall Jump
+        if (jumpPressed && isWallSliding)
+        {
+            flipLockTimer = flipLockTime;
+            isWallJumping = true;
+            wallJumpTimer = wallJumpControlDelay;
+
+            wallJumpDirection = -transform.localScale.x;
+
+            rb.linearVelocity = new Vector2(
+                wallJumpDirection * wallJumpForce.x,
+                wallJumpForce.y
+            );
+
+            // Flip player to face jump direction
+            if ((wallJumpDirection > 0 && !facingRight) ||
+                (wallJumpDirection < 0 && facingRight))
+            {
+                Flip();
+            }
+        }
+        //normal jump
+        else if (jumpPressed && coyoteTimeCounter > 0f)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             coyoteTimeCounter = 0f;
