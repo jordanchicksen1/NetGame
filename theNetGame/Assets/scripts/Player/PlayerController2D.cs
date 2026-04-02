@@ -54,6 +54,17 @@ public class PlayerController2D : MonoBehaviour
     bool jumpPressed;
     bool isGrounded;
 
+    [Header("Spell System")]
+    [SerializeField] Transform firePoint;
+    [SerializeField] GameObject fireProjectilePrefab;
+    [SerializeField] GameObject iceProjectilePrefab;
+    [SerializeField] GameObject poisonProjectilePrefab;
+
+    [SerializeField] float shootCooldown = 0.5f;
+
+    SpellType currentSpell = SpellType.None;
+    float shootTimer;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -117,6 +128,11 @@ public class PlayerController2D : MonoBehaviour
         {
             flipLockTimer -= Time.fixedDeltaTime;
         }
+
+        if (shootTimer > 0)
+        {
+            shootTimer -= Time.fixedDeltaTime;
+        }
     }
 
     // ---------------- INPUT ----------------
@@ -141,6 +157,11 @@ public class PlayerController2D : MonoBehaviour
         }
 
         downPressed = false;
+
+        if (controls.Player.Shoot.triggered)
+        {
+            TryShoot();
+        }
     }
 
     void StartGroundPound()
@@ -199,6 +220,42 @@ public class PlayerController2D : MonoBehaviour
     void OnJumpReleased(InputAction.CallbackContext context)
     {
         jumpHeld = false;
+    }
+
+    void TryShoot()
+    {
+        if (currentSpell == SpellType.None) return;
+
+        if (shootTimer > 0f) return;
+
+        GameObject projectilePrefab = null;
+
+        switch (currentSpell)
+        {
+            case SpellType.Fire:
+                projectilePrefab = fireProjectilePrefab;
+                break;
+            case SpellType.Ice:
+                projectilePrefab = iceProjectilePrefab;
+                break;
+            case SpellType.Poison:
+                projectilePrefab = poisonProjectilePrefab;
+                break;
+        }
+
+        if (projectilePrefab == null) return;
+
+        GameObject projectile = Instantiate(
+            projectilePrefab,
+            firePoint.position,
+            Quaternion.identity
+        );
+
+        // Set direction
+        float direction = facingRight ? 1f : -1f;
+        projectile.GetComponent<Projectile>().Initialize(direction);
+
+        shootTimer = shootCooldown;
     }
 
     // ---------------- PHYSICS ----------------
@@ -314,5 +371,17 @@ public class PlayerController2D : MonoBehaviour
         Vector3 scale = transform.localScale;
         scale.x *= -1;
         transform.localScale = scale;
+    }
+
+    public void LoseSpell()
+    {
+        currentSpell = SpellType.None;
+
+        // later: add visual feedback here
+    }
+
+    public void SetSpell(SpellType newSpell)
+    {
+        currentSpell = newSpell;
     }
 }
