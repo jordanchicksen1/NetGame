@@ -5,6 +5,12 @@ TagManager:
   serializedVersion: 3
   tags:
   - Ground
+  - FireProjectile
+  - IceProjectile
+  - PoisonProjectile
+  - FirePickup
+  - IcePickup
+  - PoisonPickup
   layers:
   - Default
   - TransparentFX
