@@ -9,14 +9,15 @@ public class Projectile : MonoBehaviour
     Rigidbody2D rb;
     int bounceCount;
     float direction;
+    GameObject owner;
 
-    public void Initialize(float dir)
+    public void Initialize(float dir, GameObject ownerObject)
     {
         direction = dir;
+        owner = ownerObject;
 
         rb = GetComponent<Rigidbody2D>();
 
-        // Initial forward velocity
         rb.linearVelocity = new Vector2(direction * speed, rb.linearVelocity.y);
 
         Destroy(gameObject, lifetime);
@@ -24,7 +25,9 @@ public class Projectile : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        // Bounce off ground
+        // Ignore owner
+        if (collision.gameObject == owner) return;
+
         if (collision.gameObject.CompareTag("Ground"))
         {
             bounceCount++;
@@ -35,7 +38,6 @@ public class Projectile : MonoBehaviour
             }
         }
 
-        // Hit player
         if (collision.gameObject.CompareTag("Player"))
         {
             PlayerController2D player = collision.gameObject.GetComponent<PlayerController2D>();

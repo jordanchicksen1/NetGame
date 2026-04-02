@@ -253,7 +253,7 @@ public class PlayerController2D : MonoBehaviour
 
         // Set direction
         float direction = facingRight ? 1f : -1f;
-        projectile.GetComponent<Projectile>().Initialize(direction);
+        projectile.GetComponent<Projectile>().Initialize(direction, gameObject);
 
         shootTimer = shootCooldown;
     }
