@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerController2D : MonoBehaviour
@@ -65,6 +65,19 @@ public class PlayerController2D : MonoBehaviour
     SpellType currentSpell = SpellType.None;
     float shootTimer;
 
+    [Header("Status Effects")]
+    [SerializeField] float iceDuration = 3f;
+    [SerializeField] float fireDuration = 5f;
+    [SerializeField] float poisonDuration = 3f;
+
+    [SerializeField] float poisonSlowMultiplier = 0.4f;
+
+    StatusEffectType currentEffect = StatusEffectType.None;
+    float effectTimer;
+
+    // For fire behaviour
+    float forcedMoveDirection;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -109,6 +122,7 @@ public class PlayerController2D : MonoBehaviour
         HandleGroundPound();
         HandleWallSlide();
         ApplyMovement();
+        HandleStatusEffect();
 
         if (isGrounded)
         {
@@ -297,8 +311,37 @@ public class PlayerController2D : MonoBehaviour
 
         if (isWallJumping && wallJumpTimer > 0f) return;
 
-        // Horizontal movement
-        float targetSpeed = moveInput.x * maxSpeed;
+        // ❄️ ICE → completely frozen
+        if (currentEffect == StatusEffectType.Ice)
+        {
+            rb.linearVelocity = Vector2.zero;
+            return;
+        }
+
+        // ---------------- INPUT MODIFICATION ----------------
+        float inputX = moveInput.x;
+
+        // 🔥 FIRE → forced movement
+        if (currentEffect == StatusEffectType.Fire)
+        {
+            inputX = forcedMoveDirection;
+
+            // Allow steering
+            if (moveInput.x != 0)
+            {
+                forcedMoveDirection = Mathf.Sign(moveInput.x);
+                inputX = forcedMoveDirection;
+            }
+        }
+
+        // ☠️ POISON → slow movement
+        if (currentEffect == StatusEffectType.Poison)
+        {
+            inputX *= poisonSlowMultiplier;
+        }
+
+        // ---------------- MOVEMENT ----------------
+        float targetSpeed = inputX * maxSpeed;
 
         float accel = isGrounded ? groundAcceleration : airAcceleration;
 
@@ -310,20 +353,20 @@ public class PlayerController2D : MonoBehaviour
 
         rb.linearVelocity = new Vector2(newVelocityX, rb.linearVelocity.y);
 
-        // Flip character based on movement direction
+        // ---------------- FLIP ----------------
         if (flipLockTimer <= 0f)
         {
-            if (moveInput.x > 0 && !facingRight)
+            if (inputX > 0 && !facingRight)
             {
                 Flip();
             }
-            else if (moveInput.x < 0 && facingRight)
+            else if (inputX < 0 && facingRight)
             {
                 Flip();
             }
         }
 
-        // Wall Jump
+        // ---------------- JUMP ----------------
         if (jumpPressed && isWallSliding)
         {
             flipLockTimer = flipLockTime;
@@ -337,21 +380,19 @@ public class PlayerController2D : MonoBehaviour
                 wallJumpForce.y
             );
 
-            // Flip player to face jump direction
             if ((wallJumpDirection > 0 && !facingRight) ||
                 (wallJumpDirection < 0 && facingRight))
             {
                 Flip();
             }
         }
-        //normal jump
         else if (jumpPressed && coyoteTimeCounter > 0f)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             coyoteTimeCounter = 0f;
         }
 
-        // Better jump physics
+        // ---------------- BETTER JUMP ----------------
         if (rb.linearVelocity.y < 0)
         {
             rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime;
@@ -383,5 +424,40 @@ public class PlayerController2D : MonoBehaviour
     public void SetSpell(SpellType newSpell)
     {
         currentSpell = newSpell;
+    }
+
+    public void ApplyEffect(StatusEffectType effect)
+    {
+        currentEffect = effect;
+
+        switch (effect)
+        {
+            case StatusEffectType.Ice:
+                effectTimer = iceDuration;
+                break;
+
+            case StatusEffectType.Fire:
+                effectTimer = fireDuration;
+
+                // Lock direction when hit
+                forcedMoveDirection = facingRight ? 1f : -1f;
+                break;
+
+            case StatusEffectType.Poison:
+                effectTimer = poisonDuration;
+                break;
+        }
+    }
+
+    void HandleStatusEffect()
+    {
+        if (currentEffect == StatusEffectType.None) return;
+
+        effectTimer -= Time.fixedDeltaTime;
+
+        if (effectTimer <= 0f)
+        {
+            currentEffect = StatusEffectType.None;
+        }
     }
 }

@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 8587982863741327064}
   - component: {fileID: 939185266983685411}
   - component: {fileID: 4205288090774645241}
-  - component: {fileID: 2615858003382176641}
   - component: {fileID: 7863858228874165150}
   m_Layer: 0
   m_Name: poisonProjectile
@@ -130,33 +129,6 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.5
---- !u!50 &2615858003382176641
-Rigidbody2D:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4734078822119296666}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_GravityScale: 1.5
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 1
-  m_SleepingMode: 1
-  m_CollisionDetection: 1
-  m_Constraints: 4
 --- !u!114 &7863858228874165150
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -169,6 +141,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb894b617760b0f4caa7ce6e97721d4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Projectile
-  speed: 10
-  lifetime: 3
+  speed: 12
+  gravity: 75
+  bounceForce: 15
   maxBounces: 3
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  groundCheckDistance: 0.2
+  forwardCheckDistance: 0.2
+  effectType: 3
