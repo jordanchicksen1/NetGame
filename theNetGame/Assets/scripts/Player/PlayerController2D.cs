@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
+using Unity.Netcode;
 
-public class PlayerController2D : MonoBehaviour
+public class PlayerController2D : NetworkBehaviour
 {
     [Header("Movement")]
     [SerializeField] float moveSpeed = 8f;
@@ -13,6 +14,7 @@ public class PlayerController2D : MonoBehaviour
     [SerializeField] float lowJumpMultiplier = 3.5f;
     bool jumpHeld;
     bool facingRight = true;
+    
 
     [Header("Wall Movement")]
     [SerializeField] Transform wallCheck;
@@ -48,7 +50,6 @@ public class PlayerController2D : MonoBehaviour
     [SerializeField] LayerMask groundLayer;
 
     Rigidbody2D rb;
-    PlayerControls controls;
 
     Vector2 moveInput;
     bool jumpPressed;
@@ -59,7 +60,6 @@ public class PlayerController2D : MonoBehaviour
     [SerializeField] GameObject fireProjectilePrefab;
     [SerializeField] GameObject iceProjectilePrefab;
     [SerializeField] GameObject poisonProjectilePrefab;
-
     [SerializeField] float shootCooldown = 0.5f;
 
     SpellType currentSpell = SpellType.None;
@@ -69,54 +69,65 @@ public class PlayerController2D : MonoBehaviour
     [SerializeField] float iceDuration = 3f;
     [SerializeField] float fireDuration = 5f;
     [SerializeField] float poisonDuration = 3f;
-
     [SerializeField] float poisonSlowMultiplier = 0.4f;
 
     StatusEffectType currentEffect = StatusEffectType.None;
     float effectTimer;
 
-    // For fire behaviour
     float forcedMoveDirection;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        controls = new PlayerControls();
     }
 
-    void OnEnable()
+    public override void OnNetworkSpawn()
     {
-        controls.Enable();
+        Camera playerCam = GetComponentInChildren<Camera>();
 
-        controls.Player.Jump.performed += OnJumpPressed;
-        controls.Player.Jump.canceled += OnJumpReleased;
-    }
+        if (!IsOwner)
+        {
+            if (playerCam != null)
+                playerCam.gameObject.SetActive(false);
+        }
+        else
+        {
+            Camera mainCam = Camera.main;
+            if (mainCam != null)
+                mainCam.gameObject.SetActive(false);
 
-    void OnDisable()
-    {
-        controls.Player.Jump.performed -= OnJumpPressed;
-        controls.Player.Jump.canceled -= OnJumpReleased;
-        controls.Disable();
-    }
+            if (playerCam != null)
+                playerCam.gameObject.SetActive(true);
 
-    void Update()
-    {
-        HandleInput();
+            CameraFollow2D camFollow = GetComponentInChildren<CameraFollow2D>();
+            if (camFollow != null)
+                camFollow.target = transform;
+        }
+
+
+        PlayerInput input = GetComponent<PlayerInput>();
+
+        if (input != null)
+        {
+            input.enabled = IsOwner;
+        }
     }
 
     void FixedUpdate()
     {
+        if (!IsOwner) return;
+
         CheckGround();
         CheckWall();
 
-        // Track airtime
         if (isGrounded)
-        {
             airTimeCounter = 0f;
-        }
         else
-        {
             airTimeCounter += Time.fixedDeltaTime;
+
+        if (!isGrounded && airTimeCounter > minAirTimeForGroundPound && downPressed && !isGroundPounding)
+        {
+            StartGroundPound();
         }
 
         HandleGroundPound();
@@ -125,167 +136,92 @@ public class PlayerController2D : MonoBehaviour
         HandleStatusEffect();
 
         if (isGrounded)
-        {
             isWallJumping = false;
-        }
 
         if (wallJumpTimer > 0)
-        {
             wallJumpTimer -= Time.fixedDeltaTime;
-        }
         else
-        {
             isWallJumping = false;
-        }
 
         if (flipLockTimer > 0)
-        {
             flipLockTimer -= Time.fixedDeltaTime;
-        }
 
         if (shootTimer > 0)
-        {
             shootTimer -= Time.fixedDeltaTime;
-        }
+
+        downPressed = false;
+       
     }
 
     // ---------------- INPUT ----------------
-    void HandleInput()
+
+    public void OnMove(InputValue value)
     {
+        if (!IsOwner) return;
+
         Vector2 previousInput = moveInput;
+        moveInput = value.Get<Vector2>();
 
-        moveInput = controls.Player.Move.ReadValue<Vector2>();
-
-        // Detect DOWN press (not hold)
         if (previousInput.y >= -0.5f && moveInput.y < -0.5f)
-        {
             downPressed = true;
-        }
-
-        if (!isGrounded
-            && airTimeCounter > minAirTimeForGroundPound
-            && downPressed
-            && !isGroundPounding)
-        {
-            StartGroundPound();
-        }
-
-        downPressed = false;
-
-        if (controls.Player.Shoot.triggered)
-        {
-            TryShoot();
-        }
     }
 
-    void StartGroundPound()
+    public void OnJump(InputValue value)
     {
-        isGroundPounding = true;
-        groundPoundTimer = groundPoundDuration;
+        if (!IsOwner) return;
 
-        // Slam downward
-        rb.linearVelocity = new Vector2(0f, -groundPoundForce);
-    }
-
-    void HandleGroundPound()
-    {
-        if (!isGroundPounding) return;
-
-        groundPoundTimer -= Time.fixedDeltaTime;
-
-        // Force downward velocity
-        rb.linearVelocity = new Vector2(0f, -groundPoundForce);
-
-        // Stop on ground OR timeout
-        if (isGrounded || groundPoundTimer <= 0f)
+        if (value.isPressed)
         {
-            isGroundPounding = false;
-        }
-    }
-
-    void HandleWallSlide()
-    {
-        bool pushingIntoWall =
-            (isTouchingWall && moveInput.x > 0 && facingRight) ||
-            (isTouchingWall && moveInput.x < 0 && !facingRight);
-
-        if (pushingIntoWall && !isGrounded && rb.linearVelocity.y < 0)
-        {
-            isWallSliding = true;
-
-            // Clamp fall speed instead of forcing it
-            if (rb.linearVelocity.y < -wallSlideSpeed)
-            {
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, -wallSlideSpeed);
-            }
+            jumpPressed = true;
+            jumpHeld = true;
         }
         else
         {
-            isWallSliding = false;
+            jumpHeld = false;
+            
         }
     }
 
-    void OnJumpPressed(InputAction.CallbackContext context)
+    public void OnShoot(InputValue value)
     {
-        jumpPressed = true;
-        jumpHeld = true;
-    }
+        if (!IsOwner) return;
 
-    void OnJumpReleased(InputAction.CallbackContext context)
-    {
-        jumpHeld = false;
+        if (value.isPressed)
+            TryShoot();
     }
 
     void TryShoot()
     {
         if (currentSpell == SpellType.None) return;
-
         if (shootTimer > 0f) return;
 
-        GameObject projectilePrefab = null;
+        GameObject prefab = null;
 
         switch (currentSpell)
         {
-            case SpellType.Fire:
-                projectilePrefab = fireProjectilePrefab;
-                break;
-            case SpellType.Ice:
-                projectilePrefab = iceProjectilePrefab;
-                break;
-            case SpellType.Poison:
-                projectilePrefab = poisonProjectilePrefab;
-                break;
+            case SpellType.Fire: prefab = fireProjectilePrefab; break;
+            case SpellType.Ice: prefab = iceProjectilePrefab; break;
+            case SpellType.Poison: prefab = poisonProjectilePrefab; break;
         }
 
-        if (projectilePrefab == null) return;
+        if (prefab == null) return;
 
-        GameObject projectile = Instantiate(
-            projectilePrefab,
-            firePoint.position,
-            Quaternion.identity
-        );
-
-        // Set direction
-        float direction = facingRight ? 1f : -1f;
-        projectile.GetComponent<Projectile>().Initialize(direction, gameObject);
+        GameObject projectile = Instantiate(prefab, firePoint.position, Quaternion.identity);
+        float dir = facingRight ? 1f : -1f;
+        projectile.GetComponent<Projectile>().Initialize(dir, gameObject);
 
         shootTimer = shootCooldown;
     }
 
     // ---------------- PHYSICS ----------------
+
     void CheckGround()
     {
-        isGrounded = Physics2D.OverlapCircle(
-            groundCheck.position,
-            groundCheckRadius,
-            groundLayer
-        );
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
 
         if (isGrounded)
         {
             coyoteTimeCounter = coyoteTime;
-
-            // Safety reset
             isGroundPounding = false;
         }
         else
@@ -296,53 +232,36 @@ public class PlayerController2D : MonoBehaviour
 
     void CheckWall()
     {
-        isTouchingWall = Physics2D.Raycast(
-            wallCheck.position,
-            transform.right,
-            wallCheckDistance,
-            groundLayer
-        );
+        isTouchingWall = Physics2D.Raycast(wallCheck.position, transform.right, wallCheckDistance, groundLayer);
     }
 
     // ---------------- MOVEMENT ----------------
+
     void ApplyMovement()
     {
         if (isGroundPounding) return;
-
         if (isWallJumping && wallJumpTimer > 0f) return;
 
-        // completely frozen
         if (currentEffect == StatusEffectType.Ice)
         {
             rb.linearVelocity = Vector2.zero;
             return;
         }
 
-        // ---------------- INPUT MODIFICATION ----------------
         float inputX = moveInput.x;
 
-        // forced movement
         if (currentEffect == StatusEffectType.Fire)
         {
             inputX = forcedMoveDirection;
 
-            // Allow steering
             if (moveInput.x != 0)
-            {
                 forcedMoveDirection = Mathf.Sign(moveInput.x);
-                inputX = forcedMoveDirection;
-            }
         }
 
-        // slow movement
         if (currentEffect == StatusEffectType.Poison)
-        {
             inputX *= poisonSlowMultiplier;
-        }
 
-        // ---------------- MOVEMENT ----------------
         float targetSpeed = inputX * maxSpeed;
-
         float accel = isGrounded ? groundAcceleration : airAcceleration;
 
         float newVelocityX = Mathf.MoveTowards(
@@ -353,20 +272,10 @@ public class PlayerController2D : MonoBehaviour
 
         rb.linearVelocity = new Vector2(newVelocityX, rb.linearVelocity.y);
 
-        // ---------------- FLIP ----------------
-        if (flipLockTimer <= 0f)
-        {
-            if (inputX > 0 && !facingRight)
-            {
-                Flip();
-            }
-            else if (inputX < 0 && facingRight)
-            {
-                Flip();
-            }
-        }
+        if (inputX > 0 && !facingRight) Flip();
+        else if (inputX < 0 && facingRight) Flip();
 
-        // ---------------- JUMP ----------------
+        // Wall jump
         if (jumpPressed && isWallSliding)
         {
             flipLockTimer = flipLockTime;
@@ -380,19 +289,16 @@ public class PlayerController2D : MonoBehaviour
                 wallJumpForce.y
             );
 
-            if ((wallJumpDirection > 0 && !facingRight) ||
-                (wallJumpDirection < 0 && facingRight))
-            {
-                Flip();
-            }
+            Flip();
         }
+        // Normal jump
         else if (jumpPressed && coyoteTimeCounter > 0f)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             coyoteTimeCounter = 0f;
         }
 
-        // ---------------- BETTER JUMP ----------------
+        // ORIGINAL GOOD JUMP LOGIC (restored)
         if (rb.linearVelocity.y < 0)
         {
             rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime;
@@ -408,23 +314,49 @@ public class PlayerController2D : MonoBehaviour
     void Flip()
     {
         facingRight = !facingRight;
-
         Vector3 scale = transform.localScale;
         scale.x *= -1;
         transform.localScale = scale;
     }
 
-    public void LoseSpell()
+    void StartGroundPound()
     {
-        currentSpell = SpellType.None;
-
-        // later: add visual feedback here
+        isGroundPounding = true;
+        groundPoundTimer = groundPoundDuration;
+        rb.linearVelocity = new Vector2(0f, -groundPoundForce);
     }
 
-    public void SetSpell(SpellType newSpell)
+    void HandleGroundPound()
     {
-        currentSpell = newSpell;
+        if (!isGroundPounding) return;
+
+        groundPoundTimer -= Time.fixedDeltaTime;
+        rb.linearVelocity = new Vector2(0f, -groundPoundForce);
+
+        if (isGrounded || groundPoundTimer <= 0f)
+            isGroundPounding = false;
     }
+
+    void HandleWallSlide()
+    {
+        bool pushingIntoWall =
+            (isTouchingWall && moveInput.x > 0 && facingRight) ||
+            (isTouchingWall && moveInput.x < 0 && !facingRight);
+
+        if (pushingIntoWall && !isGrounded && rb.linearVelocity.y < 0)
+        {
+            isWallSliding = true;
+
+            if (rb.linearVelocity.y < -wallSlideSpeed)
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, -wallSlideSpeed);
+        }
+        else
+        {
+            isWallSliding = false;
+        }
+    }
+
+    // ---------------- STATUS ----------------
 
     public void ApplyEffect(StatusEffectType effect)
     {
@@ -434,18 +366,15 @@ public class PlayerController2D : MonoBehaviour
         {
             case StatusEffectType.Ice:
                 effectTimer = iceDuration;
-                //put ice global volume here
                 break;
 
             case StatusEffectType.Fire:
                 effectTimer = fireDuration;
                 forcedMoveDirection = facingRight ? 1f : -1f;
-                //put fire global volume here
                 break;
 
             case StatusEffectType.Poison:
                 effectTimer = poisonDuration;
-                //put poison global volume here
                 break;
         }
     }
@@ -457,8 +386,16 @@ public class PlayerController2D : MonoBehaviour
         effectTimer -= Time.fixedDeltaTime;
 
         if (effectTimer <= 0f)
-        {
             currentEffect = StatusEffectType.None;
-        }
+    }
+
+    public void LoseSpell()
+    {
+        currentSpell = SpellType.None;
+    }
+
+    public void SetSpell(SpellType newSpell)
+    {
+        currentSpell = newSpell;
     }
 }
