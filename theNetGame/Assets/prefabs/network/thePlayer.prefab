@@ -199,7 +199,6 @@ GameObject:
   - component: {fileID: 4272200101159304914}
   - component: {fileID: 4242031306497542612}
   - component: {fileID: 709327986631602060}
-  - component: {fileID: 5014917847260452740}
   m_Layer: 0
   m_Name: player
   m_TagString: Player
@@ -404,52 +403,6 @@ MonoBehaviour:
   fireDuration: 5
   poisonDuration: 3
   poisonSlowMultiplier: 0.4
---- !u!114 &5014917847260452740
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1344889748233797477}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
-  m_Actions: {fileID: -944628639613478452, guid: ac0d6f1897fa6b249b69f1444c6c23af, type: 3}
-  m_NotificationBehavior: 0
-  m_UIInputModule: {fileID: 0}
-  m_DeviceLostEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_DeviceRegainedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ControlsChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ActionEvents:
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 81befd9d-1aea-4eb3-8e58-338c756d09bd
-    m_ActionName: 'Player/Move[/DualShock4GamepadHID/dpad/down,/XInputControllerWindows/dpad/down,/DualShock4GamepadHID/dpad/left,/XInputControllerWindows/dpad/left,/DualShock4GamepadHID/dpad/right,/XInputControllerWindows/dpad/right]'
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 558533f7-6645-40b0-8608-cf143f26538b
-    m_ActionName: 'Player/Jump[/DualShock4GamepadHID/buttonSouth,/XInputControllerWindows/buttonSouth]'
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 8cf0ad03-39f8-4c97-80b9-ebfc5ff3a279
-    m_ActionName: 'Player/GroundPound[/DualShock4GamepadHID/dpad/down,/XInputControllerWindows/dpad/down]'
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 1cd7fef8-9614-4c5f-929a-421269985af6
-    m_ActionName: 'Player/Shoot[/DualShock4GamepadHID/buttonWest,/XInputControllerWindows/buttonWest]'
-  m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: Gamepad
-  m_DefaultActionMap: Player
-  m_SplitScreenIndex: -1
-  m_Camera: {fileID: 0}
 --- !u!1 &1801577379662972009
 GameObject:
   m_ObjectHideFlags: 0
@@ -709,7 +662,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 4079928833
+  GlobalObjectIdHash: 840406657
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1

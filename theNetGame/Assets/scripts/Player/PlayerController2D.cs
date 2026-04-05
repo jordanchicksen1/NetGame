@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
-using UnityEngine.InputSystem;
 using Unity.Netcode;
 
 public class PlayerController2D : NetworkBehaviour
 {
+    PlayerControls controls;
+
     [Header("Movement")]
     [SerializeField] float moveSpeed = 8f;
     [SerializeField] float jumpForce = 14f;
@@ -14,7 +15,6 @@ public class PlayerController2D : NetworkBehaviour
     [SerializeField] float lowJumpMultiplier = 3.5f;
     bool jumpHeld;
     bool facingRight = true;
-    
 
     [Header("Wall Movement")]
     [SerializeField] Transform wallCheck;
@@ -79,7 +79,11 @@ public class PlayerController2D : NetworkBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        controls = new PlayerControls();
     }
+
+    void OnEnable() => controls.Enable();
+    void OnDisable() => controls.Disable();
 
     public override void OnNetworkSpawn()
     {
@@ -103,13 +107,33 @@ public class PlayerController2D : NetworkBehaviour
             if (camFollow != null)
                 camFollow.target = transform;
         }
+    }
 
+    void Update()
+    {
+        if (!IsOwner) return;
 
-        PlayerInput input = GetComponent<PlayerInput>();
+        moveInput = controls.Player.Move.ReadValue<Vector2>();
 
-        if (input != null)
+        if (controls.Player.Jump.WasPressedThisFrame())
         {
-            input.enabled = IsOwner;
+            jumpPressed = true;
+            jumpHeld = true;
+        }
+
+        if (controls.Player.Jump.WasReleasedThisFrame())
+        {
+            jumpHeld = false;
+        }
+
+        if (controls.Player.Shoot.WasPressedThisFrame())
+        {
+            TryShoot();
+        }
+
+        if (moveInput.y < -0.5f)
+        {
+            downPressed = true;
         }
     }
 
@@ -120,122 +144,24 @@ public class PlayerController2D : NetworkBehaviour
         CheckGround();
         CheckWall();
 
-        if (isGrounded)
-            airTimeCounter = 0f;
-        else
-            airTimeCounter += Time.fixedDeltaTime;
+        airTimeCounter = isGrounded ? 0f : airTimeCounter + Time.fixedDeltaTime;
 
         if (!isGrounded && airTimeCounter > minAirTimeForGroundPound && downPressed && !isGroundPounding)
-        {
             StartGroundPound();
-        }
 
         HandleGroundPound();
         HandleWallSlide();
         ApplyMovement();
         HandleStatusEffect();
 
-        if (isGrounded)
-            isWallJumping = false;
+        if (isGrounded) isWallJumping = false;
 
-        if (wallJumpTimer > 0)
-            wallJumpTimer -= Time.fixedDeltaTime;
-        else
-            isWallJumping = false;
-
-        if (flipLockTimer > 0)
-            flipLockTimer -= Time.fixedDeltaTime;
-
-        if (shootTimer > 0)
-            shootTimer -= Time.fixedDeltaTime;
+        wallJumpTimer -= Time.fixedDeltaTime;
+        flipLockTimer -= Time.fixedDeltaTime;
+        shootTimer -= Time.fixedDeltaTime;
 
         downPressed = false;
-       
     }
-
-    // ---------------- INPUT ----------------
-
-    public void OnMove(InputValue value)
-    {
-        if (!IsOwner) return;
-
-        Vector2 previousInput = moveInput;
-        moveInput = value.Get<Vector2>();
-
-        if (previousInput.y >= -0.5f && moveInput.y < -0.5f)
-            downPressed = true;
-    }
-
-    public void OnJump(InputValue value)
-    {
-        if (!IsOwner) return;
-
-        if (value.isPressed)
-        {
-            jumpPressed = true;
-            jumpHeld = true;
-        }
-        else
-        {
-            jumpHeld = false;
-            
-        }
-    }
-
-    public void OnShoot(InputValue value)
-    {
-        if (!IsOwner) return;
-
-        if (value.isPressed)
-            TryShoot();
-    }
-
-    void TryShoot()
-    {
-        if (currentSpell == SpellType.None) return;
-        if (shootTimer > 0f) return;
-
-        GameObject prefab = null;
-
-        switch (currentSpell)
-        {
-            case SpellType.Fire: prefab = fireProjectilePrefab; break;
-            case SpellType.Ice: prefab = iceProjectilePrefab; break;
-            case SpellType.Poison: prefab = poisonProjectilePrefab; break;
-        }
-
-        if (prefab == null) return;
-
-        GameObject projectile = Instantiate(prefab, firePoint.position, Quaternion.identity);
-        float dir = facingRight ? 1f : -1f;
-        projectile.GetComponent<Projectile>().Initialize(dir, gameObject);
-
-        shootTimer = shootCooldown;
-    }
-
-    // ---------------- PHYSICS ----------------
-
-    void CheckGround()
-    {
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
-
-        if (isGrounded)
-        {
-            coyoteTimeCounter = coyoteTime;
-            isGroundPounding = false;
-        }
-        else
-        {
-            coyoteTimeCounter -= Time.fixedDeltaTime;
-        }
-    }
-
-    void CheckWall()
-    {
-        isTouchingWall = Physics2D.Raycast(wallCheck.position, transform.right, wallCheckDistance, groundLayer);
-    }
-
-    // ---------------- MOVEMENT ----------------
 
     void ApplyMovement()
     {
@@ -253,7 +179,6 @@ public class PlayerController2D : NetworkBehaviour
         if (currentEffect == StatusEffectType.Fire)
         {
             inputX = forcedMoveDirection;
-
             if (moveInput.x != 0)
                 forcedMoveDirection = Mathf.Sign(moveInput.x);
         }
@@ -264,21 +189,14 @@ public class PlayerController2D : NetworkBehaviour
         float targetSpeed = inputX * maxSpeed;
         float accel = isGrounded ? groundAcceleration : airAcceleration;
 
-        float newVelocityX = Mathf.MoveTowards(
-            rb.linearVelocity.x,
-            targetSpeed,
-            accel * Time.fixedDeltaTime
-        );
-
+        float newVelocityX = Mathf.MoveTowards(rb.linearVelocity.x, targetSpeed, accel * Time.fixedDeltaTime);
         rb.linearVelocity = new Vector2(newVelocityX, rb.linearVelocity.y);
 
         if (inputX > 0 && !facingRight) Flip();
         else if (inputX < 0 && facingRight) Flip();
 
-        // Wall jump
         if (jumpPressed && isWallSliding)
         {
-            flipLockTimer = flipLockTime;
             isWallJumping = true;
             wallJumpTimer = wallJumpControlDelay;
 
@@ -291,14 +209,12 @@ public class PlayerController2D : NetworkBehaviour
 
             Flip();
         }
-        // Normal jump
         else if (jumpPressed && coyoteTimeCounter > 0f)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             coyoteTimeCounter = 0f;
         }
 
-        // ORIGINAL GOOD JUMP LOGIC (restored)
         if (rb.linearVelocity.y < 0)
         {
             rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime;
@@ -356,7 +272,27 @@ public class PlayerController2D : NetworkBehaviour
         }
     }
 
-    // ---------------- STATUS ----------------
+    void CheckGround()
+    {
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+
+        if (isGrounded)
+        {
+            coyoteTimeCounter = coyoteTime;
+            isGroundPounding = false;
+        }
+        else
+        {
+            coyoteTimeCounter -= Time.fixedDeltaTime;
+        }
+    }
+
+    void CheckWall()
+    {
+        isTouchingWall = Physics2D.Raycast(wallCheck.position, transform.right, wallCheckDistance, groundLayer);
+    }
+
+    // -------- STATUS EFFECTS --------
 
     public void ApplyEffect(StatusEffectType effect)
     {
@@ -397,5 +333,27 @@ public class PlayerController2D : NetworkBehaviour
     public void SetSpell(SpellType newSpell)
     {
         currentSpell = newSpell;
+    }
+
+    void TryShoot()
+    {
+        if (currentSpell == SpellType.None) return;
+        if (shootTimer > 0f) return;
+
+        GameObject prefab = currentSpell switch
+        {
+            SpellType.Fire => fireProjectilePrefab,
+            SpellType.Ice => iceProjectilePrefab,
+            SpellType.Poison => poisonProjectilePrefab,
+            _ => null
+        };
+
+        if (prefab == null) return;
+
+        GameObject projectile = Instantiate(prefab, firePoint.position, Quaternion.identity);
+        float dir = facingRight ? 1f : -1f;
+        projectile.GetComponent<Projectile>().Initialize(dir, gameObject);
+
+        shootTimer = shootCooldown;
     }
 }
