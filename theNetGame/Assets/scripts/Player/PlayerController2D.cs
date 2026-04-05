@@ -311,7 +311,7 @@ public class PlayerController2D : MonoBehaviour
 
         if (isWallJumping && wallJumpTimer > 0f) return;
 
-        // ❄️ ICE → completely frozen
+        // completely frozen
         if (currentEffect == StatusEffectType.Ice)
         {
             rb.linearVelocity = Vector2.zero;
@@ -321,7 +321,7 @@ public class PlayerController2D : MonoBehaviour
         // ---------------- INPUT MODIFICATION ----------------
         float inputX = moveInput.x;
 
-        // 🔥 FIRE → forced movement
+        // forced movement
         if (currentEffect == StatusEffectType.Fire)
         {
             inputX = forcedMoveDirection;
@@ -334,7 +334,7 @@ public class PlayerController2D : MonoBehaviour
             }
         }
 
-        // ☠️ POISON → slow movement
+        // slow movement
         if (currentEffect == StatusEffectType.Poison)
         {
             inputX *= poisonSlowMultiplier;
@@ -434,17 +434,18 @@ public class PlayerController2D : MonoBehaviour
         {
             case StatusEffectType.Ice:
                 effectTimer = iceDuration;
+                //put ice global volume here
                 break;
 
             case StatusEffectType.Fire:
                 effectTimer = fireDuration;
-
-                // Lock direction when hit
                 forcedMoveDirection = facingRight ? 1f : -1f;
+                //put fire global volume here
                 break;
 
             case StatusEffectType.Poison:
                 effectTimer = poisonDuration;
+                //put poison global volume here
                 break;
         }
     }
