@@ -704,11 +704,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController2D
   ShowTopMostFoldoutHeaderGroup: 1
   moveSpeed: 8
-  jumpForce: 7
+  jumpForce: 8
   groundAcceleration: 60
-  airAcceleration: 30
+  airAcceleration: 45
   maxSpeed: 8
-  fallMultiplier: 4
+  fallMultiplier: 3.5
   lowJumpMultiplier: 6
   wallCheck: {fileID: 7817592630253127640}
   wallCheckDistance: 0.5
@@ -825,9 +825,9 @@ MonoBehaviour:
   SyncRotAngleX: 1
   SyncRotAngleY: 1
   SyncRotAngleZ: 1
-  SyncScaleX: 1
-  SyncScaleY: 1
-  SyncScaleZ: 1
+  SyncScaleX: 0
+  SyncScaleY: 0
+  SyncScaleZ: 0
   PositionThreshold: 0.001
   RotAngleThreshold: 0.01
   ScaleThreshold: 0.01

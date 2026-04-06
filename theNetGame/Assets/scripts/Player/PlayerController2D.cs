@@ -20,6 +20,7 @@ public class PlayerController2D : NetworkBehaviour
     [SerializeField] float lowJumpMultiplier = 3.5f;
     bool jumpHeld;
     bool facingRight = true;
+    NetworkVariable<bool> netFacingRight = new NetworkVariable<bool>(writePerm: NetworkVariableWritePermission.Owner);
 
     [Header("Wall Movement")]
     [SerializeField] Transform wallCheck;
@@ -93,6 +94,13 @@ public class PlayerController2D : NetworkBehaviour
 
         if (!IsOwner)
         {
+            //IMPORTANT: subscribe BEFORE return
+            netFacingRight.OnValueChanged += OnFacingDirectionChanged;
+
+            // Apply initial value
+            facingRight = netFacingRight.Value;
+            ApplyFlipVisual();
+
             if (playerCam != null)
                 playerCam.gameObject.SetActive(false);
 
@@ -103,24 +111,20 @@ public class PlayerController2D : NetworkBehaviour
             return;
         }
 
-        // OWNER ONLY
+        // ================= OWNER CODE =================
+
         playerInput = GetComponent<PlayerInput>();
 
         moveAction = playerInput.actions["Move"];
         jumpAction = playerInput.actions["Jump"];
         shootAction = playerInput.actions["Shoot"];
 
-        // CRITICAL: stop Unity from switching devices automatically
         playerInput.neverAutoSwitchControlSchemes = true;
 
-        //REMOVE any existing paired devices FIRST
         playerInput.user.UnpairDevices();
         playerInput.user.AssociateActionsWithUser(null);
 
-        // Get ONLY gamepads
         var gamepads = Gamepad.all;
-
-        // Assign based on player index
         int deviceIndex = (int)OwnerClientId;
 
         if (deviceIndex < gamepads.Count)
@@ -131,10 +135,6 @@ public class PlayerController2D : NetworkBehaviour
             playerInput.user.AssociateActionsWithUser(playerInput.actions);
 
             Debug.Log($"Player {OwnerClientId} paired with {device.displayName}");
-        }
-        else
-        {
-            Debug.LogWarning($"No gamepad available for player {OwnerClientId}");
         }
 
         Camera mainCam = Camera.main;
@@ -147,8 +147,6 @@ public class PlayerController2D : NetworkBehaviour
         CameraFollow2D camFollow = GetComponentInChildren<CameraFollow2D>();
         if (camFollow != null)
             camFollow.target = transform;
-
-        
     }
 
     void Update()
@@ -177,6 +175,8 @@ public class PlayerController2D : NetworkBehaviour
         {
             downPressed = true;
         }
+
+        
     }
 
     void FixedUpdate()
@@ -272,9 +272,26 @@ public class PlayerController2D : NetworkBehaviour
     void Flip()
     {
         facingRight = !facingRight;
+
+        if (IsOwner)
+        {
+            netFacingRight.Value = facingRight;
+        }
+
+        ApplyFlipVisual();
+    }
+
+    void ApplyFlipVisual()
+    {
         Vector3 scale = transform.localScale;
-        scale.x *= -1;
+        scale.x = facingRight ? Mathf.Abs(scale.x) : -Mathf.Abs(scale.x);
         transform.localScale = scale;
+    }
+
+    void OnFacingDirectionChanged(bool previousValue, bool newValue)
+    {
+        facingRight = newValue;
+        ApplyFlipVisual();
     }
 
     void StartGroundPound()
