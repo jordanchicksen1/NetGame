@@ -113,6 +113,10 @@ public class PlayerController2D : NetworkBehaviour
         // CRITICAL: stop Unity from switching devices automatically
         playerInput.neverAutoSwitchControlSchemes = true;
 
+        //REMOVE any existing paired devices FIRST
+        playerInput.user.UnpairDevices();
+        playerInput.user.AssociateActionsWithUser(null);
+
         // Get ONLY gamepads
         var gamepads = Gamepad.all;
 
@@ -121,7 +125,16 @@ public class PlayerController2D : NetworkBehaviour
 
         if (deviceIndex < gamepads.Count)
         {
-            InputUser.PerformPairingWithDevice(gamepads[deviceIndex], playerInput.user);
+            var device = gamepads[deviceIndex];
+
+            InputUser.PerformPairingWithDevice(device, playerInput.user);
+            playerInput.user.AssociateActionsWithUser(playerInput.actions);
+
+            Debug.Log($"Player {OwnerClientId} paired with {device.displayName}");
+        }
+        else
+        {
+            Debug.LogWarning($"No gamepad available for player {OwnerClientId}");
         }
 
         Camera mainCam = Camera.main;
