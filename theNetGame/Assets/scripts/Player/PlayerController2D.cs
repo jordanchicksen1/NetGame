@@ -1,9 +1,14 @@
 ﻿using UnityEngine;
 using Unity.Netcode;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Users;
 
 public class PlayerController2D : NetworkBehaviour
 {
-    PlayerControls controls;
+    PlayerInput playerInput;
+    InputAction moveAction;
+    InputAction jumpAction;
+    InputAction shootAction;
 
     [Header("Movement")]
     [SerializeField] float moveSpeed = 8f;
@@ -79,11 +84,8 @@ public class PlayerController2D : NetworkBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        controls = new PlayerControls();
+        
     }
-
-    void OnEnable() => controls.Enable();
-    void OnDisable() => controls.Disable();
 
     public override void OnNetworkSpawn()
     {
@@ -93,40 +95,67 @@ public class PlayerController2D : NetworkBehaviour
         {
             if (playerCam != null)
                 playerCam.gameObject.SetActive(false);
+
+            var input = GetComponent<PlayerInput>();
+            if (input != null)
+                input.enabled = false;
+
+            return;
         }
-        else
+
+        // OWNER ONLY
+        playerInput = GetComponent<PlayerInput>();
+
+        moveAction = playerInput.actions["Move"];
+        jumpAction = playerInput.actions["Jump"];
+        shootAction = playerInput.actions["Shoot"];
+
+        // CRITICAL: stop Unity from switching devices automatically
+        playerInput.neverAutoSwitchControlSchemes = true;
+
+        // Get ONLY gamepads
+        var gamepads = Gamepad.all;
+
+        // Assign based on player index
+        int deviceIndex = (int)OwnerClientId;
+
+        if (deviceIndex < gamepads.Count)
         {
-            Camera mainCam = Camera.main;
-            if (mainCam != null)
-                mainCam.gameObject.SetActive(false);
-
-            if (playerCam != null)
-                playerCam.gameObject.SetActive(true);
-
-            CameraFollow2D camFollow = GetComponentInChildren<CameraFollow2D>();
-            if (camFollow != null)
-                camFollow.target = transform;
+            InputUser.PerformPairingWithDevice(gamepads[deviceIndex], playerInput.user);
         }
+
+        Camera mainCam = Camera.main;
+        if (mainCam != null)
+            mainCam.gameObject.SetActive(false);
+
+        if (playerCam != null)
+            playerCam.gameObject.SetActive(true);
+
+        CameraFollow2D camFollow = GetComponentInChildren<CameraFollow2D>();
+        if (camFollow != null)
+            camFollow.target = transform;
+
+        
     }
 
     void Update()
     {
         if (!IsOwner) return;
 
-        moveInput = controls.Player.Move.ReadValue<Vector2>();
+        moveInput = moveAction.ReadValue<Vector2>();
 
-        if (controls.Player.Jump.WasPressedThisFrame())
+        if (jumpAction.WasPressedThisFrame())
         {
             jumpPressed = true;
             jumpHeld = true;
         }
 
-        if (controls.Player.Jump.WasReleasedThisFrame())
+        if (jumpAction.WasReleasedThisFrame())
         {
             jumpHeld = false;
         }
 
-        if (controls.Player.Shoot.WasPressedThisFrame())
+        if (shootAction.WasPressedThisFrame())
         {
             TryShoot();
         }
