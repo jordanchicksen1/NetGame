@@ -1,6 +1,8 @@
-﻿using UnityEngine;
+﻿using System;
+using Unity.Netcode;
+using UnityEngine;
 
-public class Projectile : MonoBehaviour
+public class Projectile : NetworkBehaviour
 {
     [Header("Movement")]
     [SerializeField] float speed = 10f;
@@ -32,6 +34,7 @@ public class Projectile : MonoBehaviour
 
     void Update()
     {
+        if (!IsServer) return;
         verticalVelocity -= gravity * Time.deltaTime;
 
         Vector2 movement = new Vector2(
@@ -74,7 +77,10 @@ public class Projectile : MonoBehaviour
         if (wallHit.collider != null)
         {
             // Hit wall → destroy projectile
-            Destroy(gameObject);
+            if (IsServer)
+            {
+                GetComponent<NetworkObject>().Despawn();
+            }
             return;
         }
 
@@ -99,7 +105,10 @@ public class Projectile : MonoBehaviour
                 player.ApplyEffect(effectType);
             }
 
-            Destroy(gameObject);
+            if (IsServer)
+            {
+                GetComponent<NetworkObject>().Despawn();
+            }
             return;
         }
 
@@ -116,7 +125,10 @@ public class Projectile : MonoBehaviour
 
         if (bounceCount >= maxBounces)
         {
-            Destroy(gameObject);
+            if (IsServer)
+            {
+                GetComponent<NetworkObject>().Despawn();
+            }
             return;
         }
 
