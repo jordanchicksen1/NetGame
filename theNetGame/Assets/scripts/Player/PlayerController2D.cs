@@ -409,10 +409,30 @@ public class PlayerController2D : NetworkBehaviour
 
         if (prefab == null) return;
 
-        GameObject projectile = Instantiate(prefab, firePoint.position, Quaternion.identity);
         float dir = facingRight ? 1f : -1f;
-        projectile.GetComponent<Projectile>().Initialize(dir, gameObject);
+        ShootServerRpc(dir);
 
         shootTimer = shootCooldown;
+    }
+
+    [ServerRpc]
+    void ShootServerRpc(float direction)
+    {
+        GameObject prefab = currentSpell switch
+        {
+            SpellType.Fire => fireProjectilePrefab,
+            SpellType.Ice => iceProjectilePrefab,
+            SpellType.Poison => poisonProjectilePrefab,
+            _ => null
+        };
+
+        if (prefab == null) return;
+
+        GameObject projectile = Instantiate(prefab, firePoint.position, Quaternion.identity);
+
+        // THIS IS THE IMPORTANT PART
+        projectile.GetComponent<NetworkObject>().Spawn();
+
+        projectile.GetComponent<Projectile>().Initialize(direction, gameObject);
     }
 }
