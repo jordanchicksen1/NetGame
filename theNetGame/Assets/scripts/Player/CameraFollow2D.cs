@@ -1,8 +1,9 @@
+using Unity.Netcode;
 using UnityEngine;
 
 public class CameraFollow2D : MonoBehaviour
 {
-    [SerializeField] Transform target;
+    public Transform target;
 
     [Header("Follow Settings")]
     [SerializeField] float smoothSpeed = 5f;
@@ -14,6 +15,8 @@ public class CameraFollow2D : MonoBehaviour
 
     void LateUpdate()
     {
+        
+
         if (target == null) return;
 
         Vector3 currentPos = transform.position;
