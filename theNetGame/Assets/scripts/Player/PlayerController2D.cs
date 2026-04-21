@@ -115,27 +115,29 @@ public class PlayerController2D : NetworkBehaviour
 
         playerInput = GetComponent<PlayerInput>();
 
-        moveAction = playerInput.actions["Move"];
-        jumpAction = playerInput.actions["Jump"];
-        shootAction = playerInput.actions["Shoot"];
+        // CRITICAL FIX START 
 
         playerInput.neverAutoSwitchControlSchemes = true;
 
+        // wipe any automatic device pairing
         playerInput.user.UnpairDevices();
-        playerInput.user.AssociateActionsWithUser(null);
 
+        // get all connected gamepads
         var gamepads = Gamepad.all;
-        int deviceIndex = (int)OwnerClientId;
 
-        if (deviceIndex < gamepads.Count)
+        // assign based on ownership (Host = 0, Client = 1)
+        int playerIndex = (int)OwnerClientId;
+
+        if (playerIndex < gamepads.Count)
         {
-            var device = gamepads[deviceIndex];
-
-            InputUser.PerformPairingWithDevice(device, playerInput.user);
-            playerInput.user.AssociateActionsWithUser(playerInput.actions);
-
-            Debug.Log($"Player {OwnerClientId} paired with {device.displayName}");
+            InputUser.PerformPairingWithDevice(gamepads[playerIndex], playerInput.user);
         }
+
+        //  CRITICAL FIX END 
+
+        moveAction = playerInput.actions["Move"];
+        jumpAction = playerInput.actions["Jump"];
+        shootAction = playerInput.actions["Shoot"];
 
         Camera mainCam = Camera.main;
         if (mainCam != null)
