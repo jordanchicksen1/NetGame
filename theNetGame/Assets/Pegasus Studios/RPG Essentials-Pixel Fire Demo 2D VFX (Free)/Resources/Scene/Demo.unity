@@ -131,6 +131,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Fire Bolt purple
       objectReference: {fileID: 0}
+    - target: {fileID: 1030242224257281294, guid: e3f65fadf19c46440beb64e28245da4b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6227487411916022651, guid: e3f65fadf19c46440beb64e28245da4b, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.8
@@ -280,6 +284,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Fire bolt blue
       objectReference: {fileID: 0}
+    - target: {fileID: 1030242224257281294, guid: a257a1e44454adb42bf52db5480bf177, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6227487411916022651, guid: a257a1e44454adb42bf52db5480bf177, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.8
@@ -337,6 +345,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Fire bolt ethereal
       objectReference: {fileID: 0}
+    - target: {fileID: 1030242224257281294, guid: e202906fd74bb914999696b558fb043b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6227487411916022651, guid: e202906fd74bb914999696b558fb043b, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.8
@@ -393,6 +405,10 @@ PrefabInstance:
     - target: {fileID: 1030242224257281294, guid: da0d45a3f248c0d4fbd37323f2a57208, type: 3}
       propertyPath: m_Name
       value: Fire bolt Green
+      objectReference: {fileID: 0}
+    - target: {fileID: 1030242224257281294, guid: da0d45a3f248c0d4fbd37323f2a57208, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6227487411916022651, guid: da0d45a3f248c0d4fbd37323f2a57208, type: 3}
       propertyPath: m_LocalPosition.x
