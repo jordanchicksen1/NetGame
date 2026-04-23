@@ -68,7 +68,7 @@ public class PlayerController2D : NetworkBehaviour
     [SerializeField] GameObject poisonProjectilePrefab;
     [SerializeField] float shootCooldown = 0.5f;
 
-    SpellType currentSpell = SpellType.None;
+    NetworkVariable<SpellType> currentSpell = new NetworkVariable<SpellType>(SpellType.None, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     float shootTimer;
 
     [Header("Status Effects")]
@@ -388,20 +388,26 @@ public class PlayerController2D : NetworkBehaviour
 
     public void LoseSpell()
     {
-        currentSpell = SpellType.None;
+        if (IsServer)
+        {
+            currentSpell.Value = SpellType.None;
+        }
     }
 
     public void SetSpell(SpellType newSpell)
     {
-        currentSpell = newSpell;
+        if (IsServer)
+        {
+            currentSpell.Value = newSpell;
+        }
     }
 
     void TryShoot()
     {
-        if (currentSpell == SpellType.None) return;
+        if (currentSpell.Value == SpellType.None) return;
         if (shootTimer > 0f) return;
 
-        GameObject prefab = currentSpell switch
+        GameObject prefab = currentSpell.Value switch
         {
             SpellType.Fire => fireProjectilePrefab,
             SpellType.Ice => iceProjectilePrefab,
@@ -420,7 +426,7 @@ public class PlayerController2D : NetworkBehaviour
     [ServerRpc]
     void ShootServerRpc(float direction)
     {
-        GameObject prefab = currentSpell switch
+        GameObject prefab = currentSpell.Value switch
         {
             SpellType.Fire => fireProjectilePrefab,
             SpellType.Ice => iceProjectilePrefab,
