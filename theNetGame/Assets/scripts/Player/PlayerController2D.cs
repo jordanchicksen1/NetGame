@@ -77,15 +77,18 @@ public class PlayerController2D : NetworkBehaviour
     [SerializeField] float poisonDuration = 3f;
     [SerializeField] float poisonSlowMultiplier = 0.4f;
 
-    StatusEffectType currentEffect = StatusEffectType.None;
-    float effectTimer;
+    NetworkVariable<StatusEffectType> currentEffect = new NetworkVariable<StatusEffectType>(
+        StatusEffectType.None,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server
+    );
 
+    float effectTimer;
     float forcedMoveDirection;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        
     }
 
     public override void OnNetworkSpawn()
@@ -94,12 +97,15 @@ public class PlayerController2D : NetworkBehaviour
 
         if (!IsOwner)
         {
-            //IMPORTANT: subscribe BEFORE return
             netFacingRight.OnValueChanged += OnFacingDirectionChanged;
+            currentEffect.OnValueChanged += OnEffectChanged;
+            
 
-            // Apply initial value
             facingRight = netFacingRight.Value;
             ApplyFlipVisual();
+
+            // Apply effect immediately if already active
+            OnEffectChanged(StatusEffectType.None, currentEffect.Value);
 
             if (playerCam != null)
                 playerCam.gameObject.SetActive(false);
@@ -111,29 +117,18 @@ public class PlayerController2D : NetworkBehaviour
             return;
         }
 
-        // ================= OWNER CODE =================
-
         playerInput = GetComponent<PlayerInput>();
 
-        // CRITICAL FIX START 
-
         playerInput.neverAutoSwitchControlSchemes = true;
-
-        // wipe any automatic device pairing
         playerInput.user.UnpairDevices();
 
-        // get all connected gamepads
         var gamepads = Gamepad.all;
-
-        // assign based on ownership (Host = 0, Client = 1)
         int playerIndex = (int)OwnerClientId;
 
         if (playerIndex < gamepads.Count)
         {
             InputUser.PerformPairingWithDevice(gamepads[playerIndex], playerInput.user);
         }
-
-        //  CRITICAL FIX END 
 
         moveAction = playerInput.actions["Move"];
         jumpAction = playerInput.actions["Jump"];
@@ -177,12 +172,17 @@ public class PlayerController2D : NetworkBehaviour
         {
             downPressed = true;
         }
-
-        
     }
 
     void FixedUpdate()
     {
+        // ALWAYS run timer on server (for ALL players)
+        if (IsServer)
+        {
+            HandleStatusEffect();
+        }
+
+        // Only movement is owner-only
         if (!IsOwner) return;
 
         CheckGround();
@@ -196,7 +196,6 @@ public class PlayerController2D : NetworkBehaviour
         HandleGroundPound();
         HandleWallSlide();
         ApplyMovement();
-        HandleStatusEffect();
 
         if (isGrounded) isWallJumping = false;
 
@@ -212,7 +211,7 @@ public class PlayerController2D : NetworkBehaviour
         if (isGroundPounding) return;
         if (isWallJumping && wallJumpTimer > 0f) return;
 
-        if (currentEffect == StatusEffectType.Ice)
+        if (currentEffect.Value == StatusEffectType.Ice)
         {
             rb.linearVelocity = Vector2.zero;
             return;
@@ -220,14 +219,24 @@ public class PlayerController2D : NetworkBehaviour
 
         float inputX = moveInput.x;
 
-        if (currentEffect == StatusEffectType.Fire)
+        if (currentEffect.Value == StatusEffectType.Fire)
         {
-            inputX = forcedMoveDirection;
+            // Ensure direction is always valid
+            if (forcedMoveDirection == 0f)
+            {
+                forcedMoveDirection = facingRight ? 1f : -1f;
+            }
+
+            // Allow player to change direction
             if (moveInput.x != 0)
+            {
                 forcedMoveDirection = Mathf.Sign(moveInput.x);
+            }
+
+            inputX = forcedMoveDirection;
         }
 
-        if (currentEffect == StatusEffectType.Poison)
+        if (currentEffect.Value == StatusEffectType.Poison)
             inputX *= poisonSlowMultiplier;
 
         float targetSpeed = inputX * maxSpeed;
@@ -269,6 +278,19 @@ public class PlayerController2D : NetworkBehaviour
         }
 
         jumpPressed = false;
+    }
+
+    void OnEffectChanged(StatusEffectType oldEffect, StatusEffectType newEffect)
+    {
+        if (newEffect == StatusEffectType.Ice)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+
+        if (newEffect == StatusEffectType.Fire)
+        {
+            forcedMoveDirection = facingRight ? 1f : -1f;
+        }
     }
 
     void Flip()
@@ -353,11 +375,11 @@ public class PlayerController2D : NetworkBehaviour
         isTouchingWall = Physics2D.Raycast(wallCheck.position, transform.right, wallCheckDistance, groundLayer);
     }
 
-    // -------- STATUS EFFECTS --------
-
     public void ApplyEffect(StatusEffectType effect)
     {
-        currentEffect = effect;
+        if (!IsServer) return;
+
+        currentEffect.Value = effect;
 
         switch (effect)
         {
@@ -378,12 +400,14 @@ public class PlayerController2D : NetworkBehaviour
 
     void HandleStatusEffect()
     {
-        if (currentEffect == StatusEffectType.None) return;
+        if (!IsServer) return;
+
+        if (currentEffect.Value == StatusEffectType.None) return;
 
         effectTimer -= Time.fixedDeltaTime;
 
         if (effectTimer <= 0f)
-            currentEffect = StatusEffectType.None;
+            currentEffect.Value = StatusEffectType.None;
     }
 
     public void LoseSpell()
@@ -407,24 +431,14 @@ public class PlayerController2D : NetworkBehaviour
         if (currentSpell.Value == SpellType.None) return;
         if (shootTimer > 0f) return;
 
-        GameObject prefab = currentSpell.Value switch
-        {
-            SpellType.Fire => fireProjectilePrefab,
-            SpellType.Ice => iceProjectilePrefab,
-            SpellType.Poison => poisonProjectilePrefab,
-            _ => null
-        };
-
-        if (prefab == null) return;
-
         float dir = facingRight ? 1f : -1f;
-        ShootServerRpc(dir);
+        ShootServerRpc(dir, firePoint.position);
 
         shootTimer = shootCooldown;
     }
 
     [ServerRpc]
-    void ShootServerRpc(float direction)
+    void ShootServerRpc(float direction, Vector3 spawnPosition)
     {
         GameObject prefab = currentSpell.Value switch
         {
@@ -436,11 +450,12 @@ public class PlayerController2D : NetworkBehaviour
 
         if (prefab == null) return;
 
-        GameObject projectile = Instantiate(prefab, firePoint.position, Quaternion.identity);
+        Vector3 spawnPos = spawnPosition;
+        spawnPos.x += direction * 0.5f;
 
-        // THIS IS THE IMPORTANT PART
+        GameObject projectile = Instantiate(prefab, spawnPos, Quaternion.identity);
+
         projectile.GetComponent<NetworkObject>().Spawn();
-
-        projectile.GetComponent<Projectile>().Initialize(direction, gameObject);
+        projectile.GetComponent<Projectile>().Initialize(direction, OwnerClientId);
     }
 }

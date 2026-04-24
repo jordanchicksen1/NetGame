@@ -19,16 +19,14 @@ public class Projectile : NetworkBehaviour
     float verticalVelocity;
 
     int bounceCount;
-    GameObject owner;
+    ulong ownerClientId;
 
     [SerializeField] StatusEffectType effectType;
 
-    public void Initialize(float dir, GameObject ownerObject)
+    public void Initialize(float dir, ulong ownerId)
     {
         direction = dir;
-        owner = ownerObject;
-
-        // Initial upward arc
+        ownerClientId = ownerId;
         verticalVelocity = bounceForce;
     }
 
@@ -89,10 +87,16 @@ public class Projectile : NetworkBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
+        if (!IsServer) return;
+
         GameObject hitObject = collision.gameObject;
 
-        // Ignore owner if exists
-        if (owner != null && hitObject == owner) return;
+        var netObj = hitObject.GetComponent<NetworkObject>();
+
+        if (netObj != null && netObj.OwnerClientId == ownerClientId)
+        {
+            return;
+        }
 
         // Player hit
         if (hitObject.CompareTag("Player"))
