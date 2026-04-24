@@ -86,6 +86,9 @@ public class PlayerController2D : NetworkBehaviour
     float effectTimer;
     float forcedMoveDirection;
 
+    [Header("Coin Stuff")]
+    NetworkVariable<int> coinCount = new NetworkVariable<int>(0,NetworkVariableReadPermission.Everyone,NetworkVariableWritePermission.Server);
+    [SerializeField] GameObject[] powerUpPrefabs;
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -457,5 +460,37 @@ public class PlayerController2D : NetworkBehaviour
 
         projectile.GetComponent<NetworkObject>().Spawn();
         projectile.GetComponent<Projectile>().Initialize(direction, OwnerClientId);
+    }
+
+    public void AddCoin()
+    {
+        if (!IsServer) return;
+
+        coinCount.Value++;
+
+        if (coinCount.Value >= 8)
+        {
+            coinCount.Value = 0;
+            SpawnPowerUp();
+        }
+    }
+
+    void SpawnPowerUp()
+    {
+        if (!IsServer) return;
+
+        if (powerUpPrefabs.Length == 0)
+        {
+            Debug.LogWarning("No power-ups assigned!");
+            return;
+        }
+
+        int index = Random.Range(0, powerUpPrefabs.Length);
+        GameObject prefab = powerUpPrefabs[index];
+
+        Vector3 spawnPos = transform.position + Vector3.up * 2f;
+
+        GameObject power = Instantiate(prefab, spawnPos, Quaternion.identity);
+        power.GetComponent<NetworkObject>().Spawn();
     }
 }

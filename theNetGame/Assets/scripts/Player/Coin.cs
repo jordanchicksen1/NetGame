@@ -1,10 +1,8 @@
-using Unity.Netcode;
 using UnityEngine;
+using Unity.Netcode;
 
-public class SpellPickup : NetworkBehaviour
+public class Coin : NetworkBehaviour
 {
-    [SerializeField] SpellType spellType;
-
     void OnTriggerEnter2D(Collider2D collision)
     {
         if (!IsServer) return;
@@ -15,10 +13,10 @@ public class SpellPickup : NetworkBehaviour
 
             if (player != null)
             {
-                player.SetSpell(spellType);
+                player.AddCoin();
             }
 
-            Destroy(gameObject);
+            GetComponent<NetworkObject>().Despawn();
         }
     }
 }
