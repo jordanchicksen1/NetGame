@@ -89,6 +89,7 @@ public class PlayerController2D : NetworkBehaviour
     [Header("Coin Stuff")]
     NetworkVariable<int> coinCount = new NetworkVariable<int>(0,NetworkVariableReadPermission.Everyone,NetworkVariableWritePermission.Server);
     [SerializeField] GameObject[] powerUpPrefabs;
+   
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -492,5 +493,10 @@ public class PlayerController2D : NetworkBehaviour
 
         GameObject power = Instantiate(prefab, spawnPos, Quaternion.identity);
         power.GetComponent<NetworkObject>().Spawn();
+    }
+
+    public int GetCoinCount()
+    {
+        return coinCount.Value;
     }
 }
