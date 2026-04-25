@@ -821,7 +821,7 @@ Transform:
   m_GameObject: {fileID: 257260237}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 21.69, y: -3.18419, z: 0}
+  m_LocalPosition: {x: 20.89, y: -3.18419, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -841,6 +841,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::QuestionBlock
   ShowTopMostFoldoutHeaderGroup: 1
   coinVisualPrefab: {fileID: 1417847543612208980, guid: 0970ac6baafb1ad4e87ec1f646df2df7, type: 3}
+  fireSpellPrefab: {fileID: 3976107748148302985, guid: 955077f778b5a1b4397279c68a4897d6, type: 3}
+  iceSpellPrefab: {fileID: 7412261060646382759, guid: e1907691dbef7bf448d99839e51cbf78, type: 3}
+  poisonSpellPrefab: {fileID: 4295853165262876554, guid: 9afbf7dad98bc2e45804edad68644916, type: 3}
+  powerUpChance: 0.1
 --- !u!1 &283869136
 GameObject:
   m_ObjectHideFlags: 0
