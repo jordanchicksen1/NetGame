@@ -1,6 +1,5 @@
 using UnityEngine;
 using Unity.Netcode;
-using System.Collections.Generic;
 
 public class GemManager : NetworkBehaviour
 {
@@ -22,40 +21,58 @@ public class GemManager : NetworkBehaviour
         }
     }
 
-    public void SpawnGem()
-    {
-        if (!IsServer) return;
-
-        int index = Random.Range(0, spawnPoints.Length);
-        Transform spawn = spawnPoints[index];
-
-        GameObject gem = Instantiate(gemPrefab, spawn.position, Quaternion.identity);
-        gem.GetComponent<NetworkObject>().Spawn();
-    }
-
-    public void OnGemCollected(PlayerController2D player)
+    public void OnGemCollected(PlayerController2D player, bool isWorldGem)
     {
         if (!IsServer) return;
 
         player.AddGem();
 
-        ResetWorld();
+        // ONLY reset + spawn if this was a world gem
+        if (isWorldGem)
+        {
+            ResetWorld();
 
-        if (player.GetGemCount() >= 10)
-        {
-            Debug.Log($"PLAYER {player.OwnerClientId} WINS!");
-            // TODO: win screen later
+            if (player.GetGemCount() >= 10)
+            {
+                Debug.Log($"PLAYER {player.OwnerClientId} WINS!");
+                // you can add win UI later here
+            }
+            else
+            {
+                SpawnGem();
+            }
         }
-        else
+    }
+
+    void SpawnGem()
+    {
+        if (!IsServer) return;
+
+        if (spawnPoints.Length == 0)
         {
-            SpawnGem();
+            Debug.LogWarning("No spawn points assigned!");
+            return;
+        }
+
+        int index = Random.Range(0, spawnPoints.Length);
+        Transform spawn = spawnPoints[index];
+
+        GameObject gem = Instantiate(gemPrefab, spawn.position, Quaternion.identity);
+
+        var netObj = gem.GetComponent<NetworkObject>();
+        netObj.Spawn();
+
+        var gemScript = gem.GetComponent<Gem>();
+        if (gemScript != null)
+        {
+            gemScript.SetAsWorldGem(); // mark as map gem
         }
     }
 
     void ResetWorld()
     {
-        // Reset coins
-        foreach (var coin in FindObjectsByType<Coin>(FindObjectsSortMode.None))
+        // Reset coins (including inactive ones)
+        foreach (var coin in FindObjectsByType<Coin>(FindObjectsInactive.Include, FindObjectsSortMode.None))
         {
             coin.ResetCoin();
         }
