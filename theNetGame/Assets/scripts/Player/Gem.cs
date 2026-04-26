@@ -16,10 +16,17 @@ public class Gem : NetworkBehaviour
     public void InitializeDrop(ulong ownerId)
     {
         ignorePlayerId = ownerId;
+        ignoreTimer = 0.5f;
 
-        // shoot upward + slight random sideways
+        if (rb == null)
+            rb = GetComponent<Rigidbody2D>();
+
+        // reset velocity first (important)
+        rb.linearVelocity = Vector2.zero;
+
+        // apply impulse instead of setting velocity
         Vector2 force = new Vector2(Random.Range(-2f, 2f), 6f);
-        rb.linearVelocity = force;
+        rb.AddForce(force, ForceMode2D.Impulse);
     }
 
     void Update()
