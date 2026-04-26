@@ -9,6 +9,7 @@ public class CoinUI : MonoBehaviour
 
     void Start()
     {
+        Debug.Log("Coin UI STARTED");
         FindLocalPlayer();
     }
 
