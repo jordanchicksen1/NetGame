@@ -19,18 +19,26 @@ public class MainMenu : MonoBehaviour
 
         Debug.Log("JOIN CODE: " + code);
 
-        // show code on screen
-        if (joinCodeText != null)
-            joinCodeText.text = "Code: " + code;
+        if (joinCodeText == null)
+        {
+            Debug.LogError("JoinCodeText is NOT assigned!");
+            return;
+        }
 
-        // hide menu
+        joinCodeText.gameObject.SetActive(true);
+        joinCodeText.text = "Code: " + code;
+    }
+
+    public void StartGame()
+    {
+        Debug.Log("Starting Game Scene...");
+
         if (menuPanel != null)
             menuPanel.SetActive(false);
 
-        // load game scene (clients will follow automatically)
         NetworkManager.Singleton.SceneManager.LoadScene(
             "Game",
-            LoadSceneMode.Single
+            UnityEngine.SceneManagement.LoadSceneMode.Single
         );
     }
 

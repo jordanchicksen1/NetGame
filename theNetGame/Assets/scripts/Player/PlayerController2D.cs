@@ -152,8 +152,11 @@ public class PlayerController2D : NetworkBehaviour
         shootAction = playerInput.actions["Shoot"];
 
         Camera mainCam = Camera.main;
-        if (mainCam != null)
+
+        if (mainCam != null && mainCam != playerCam)
+        {
             mainCam.gameObject.SetActive(false);
+        }
 
         if (playerCam != null)
             playerCam.gameObject.SetActive(true);
