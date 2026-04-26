@@ -96,6 +96,13 @@ public class PlayerController2D : NetworkBehaviour
     NetworkVariableReadPermission.Everyone,
     NetworkVariableWritePermission.Server
 );
+
+    [Header("Hit Cooldown")]
+    [SerializeField] float hitCooldownDuration = 2f;
+
+    float hitCooldownTimer;
+    bool canBeHit = true;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -392,6 +399,9 @@ public class PlayerController2D : NetworkBehaviour
     {
         if (!IsServer) return;
 
+        // block if on cooldown
+        if (!canBeHit) return;
+
         currentEffect.Value = effect;
 
         switch (effect)
@@ -409,18 +419,41 @@ public class PlayerController2D : NetworkBehaviour
                 effectTimer = poisonDuration;
                 break;
         }
+
+        // start cooldown AFTER effect ends
+        canBeHit = false;
     }
 
     void HandleStatusEffect()
     {
         if (!IsServer) return;
 
-        if (currentEffect.Value == StatusEffectType.None) return;
+        // effect running
+        if (currentEffect.Value != StatusEffectType.None)
+        {
+            effectTimer -= Time.fixedDeltaTime;
 
-        effectTimer -= Time.fixedDeltaTime;
+            if (effectTimer <= 0f)
+            {
+                currentEffect.Value = StatusEffectType.None;
 
-        if (effectTimer <= 0f)
-            currentEffect.Value = StatusEffectType.None;
+                // start cooldown AFTER effect ends
+                hitCooldownTimer = hitCooldownDuration;
+            }
+
+            return;
+        }
+
+        // cooldown running
+        if (!canBeHit)
+        {
+            hitCooldownTimer -= Time.fixedDeltaTime;
+
+            if (hitCooldownTimer <= 0f)
+            {
+                canBeHit = true;
+            }
+        }
     }
 
     public void LoseSpell()
