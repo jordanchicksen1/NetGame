@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 8587982863741327064}
   - component: {fileID: 939185266983685411}
   - component: {fileID: 4205288090774645241}
-  - component: {fileID: 7863858228874165150}
   - component: {fileID: 6188396629129304097}
+  - component: {fileID: 7863858228874165150}
   - component: {fileID: -8997937833676463348}
   m_Layer: 0
   m_Name: poisonProjectile
@@ -85,7 +85,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 5e8d2e38024b5b54eb07f11b68d6dcba, type: 3}
   m_Color: {r: 0.7386236, g: 0, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -131,29 +131,6 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.5
---- !u!114 &7863858228874165150
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4734078822119296666}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cb894b617760b0f4caa7ce6e97721d4a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Projectile
-  ShowTopMostFoldoutHeaderGroup: 1
-  speed: 12
-  gravity: 75
-  bounceForce: 15
-  maxBounces: 3
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  groundCheckDistance: 0.2
-  forwardCheckDistance: 0.2
-  effectType: 3
 --- !u!114 &6188396629129304097
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -179,6 +156,29 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
+--- !u!114 &7863858228874165150
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4734078822119296666}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb894b617760b0f4caa7ce6e97721d4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Projectile
+  ShowTopMostFoldoutHeaderGroup: 1
+  speed: 12
+  gravity: 75
+  bounceForce: 15
+  maxBounces: 3
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  groundCheckDistance: 0.2
+  forwardCheckDistance: 0.2
+  effectType: 3
 --- !u!114 &-8997937833676463348
 MonoBehaviour:
   m_ObjectHideFlags: 0

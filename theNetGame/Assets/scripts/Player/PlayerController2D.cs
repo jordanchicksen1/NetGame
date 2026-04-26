@@ -588,4 +588,9 @@ public class PlayerController2D : NetworkBehaviour
             gemScript.InitializeDrop(OwnerClientId);
         }
     }
+
+    public SpellType GetCurrentSpell()
+    {
+        return currentSpell.Value;
+    }
 }
