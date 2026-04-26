@@ -36,7 +36,13 @@ public class Coin : NetworkBehaviour
             player.AddCoin();
         }
 
-        // hide coin instead of despawning
+        // 👇 tell ALL clients to hide coin
+        HideCoinClientRpc();
+    }
+
+    [ClientRpc]
+    void HideCoinClientRpc()
+    {
         gameObject.SetActive(false);
     }
 
@@ -46,6 +52,14 @@ public class Coin : NetworkBehaviour
         if (!IsServer) return;
 
         collected = false;
+
+        // tell ALL clients to show coin again
+        ShowCoinClientRpc();
+    }
+
+    [ClientRpc]
+    void ShowCoinClientRpc()
+    {
         gameObject.SetActive(true);
     }
 }
