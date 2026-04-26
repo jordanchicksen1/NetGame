@@ -189,8 +189,11 @@ public class PlayerController2D : NetworkBehaviour
         // Only movement is owner-only
         if (!IsOwner) return;
 
-        CheckGround();
-        CheckWall();
+        if (Time.frameCount % 2 == 0)
+        {
+            CheckGround();
+            CheckWall();
+        }
 
         airTimeCounter = isGrounded ? 0f : airTimeCounter + Time.fixedDeltaTime;
 
@@ -463,11 +466,19 @@ public class PlayerController2D : NetworkBehaviour
         projectile.GetComponent<Projectile>().Initialize(direction, OwnerClientId);
     }
 
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    public void AddCoinRpc()
+    {
+        AddCoin();
+    }
+
     public void AddCoin()
     {
         if (!IsServer) return;
 
         coinCount.Value++;
+
+        Debug.Log($"ADD COIN CALLED → Player {OwnerClientId} = {coinCount.Value}");
 
         if (coinCount.Value >= 8)
         {

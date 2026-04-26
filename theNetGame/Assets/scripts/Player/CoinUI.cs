@@ -7,15 +7,14 @@ public class CoinUI : MonoBehaviour
 
     PlayerController2D player;
 
-    void Start()
-    {
-        Debug.Log("Coin UI STARTED");
-        FindLocalPlayer();
-    }
-
     void Update()
     {
-        if (player == null) return;
+        // Keep trying until we find the local player
+        if (player == null)
+        {
+            FindLocalPlayer();
+            return;
+        }
 
         coinText.text = $"Coins: {player.GetCoinCount()} / 8";
     }
@@ -29,7 +28,8 @@ public class CoinUI : MonoBehaviour
             if (p.IsOwner)
             {
                 player = p;
-                break;
+                Debug.Log("UI linked to player: " + p.OwnerClientId);
+                return;
             }
         }
     }
