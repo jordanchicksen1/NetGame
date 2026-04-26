@@ -89,7 +89,13 @@ public class PlayerController2D : NetworkBehaviour
     [Header("Coin Stuff")]
     NetworkVariable<int> coinCount = new NetworkVariable<int>(0,NetworkVariableReadPermission.Everyone,NetworkVariableWritePermission.Server);
     [SerializeField] GameObject[] powerUpPrefabs;
-   
+
+    [Header("Gem Stuff")]
+    NetworkVariable<int> gemCount = new NetworkVariable<int>(
+    0,
+    NetworkVariableReadPermission.Everyone,
+    NetworkVariableWritePermission.Server
+);
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -509,5 +515,31 @@ public class PlayerController2D : NetworkBehaviour
     public int GetCoinCount()
     {
         return coinCount.Value;
+    }
+
+    public void AddGem()
+    {
+        if (!IsServer) return;
+
+        gemCount.Value++;
+    }
+
+    public int GetGemCount()
+    {
+        return gemCount.Value;
+    }
+
+    public void DropGem()
+    {
+        if (!IsServer) return;
+
+        if (gemCount.Value <= 0) return;
+
+        gemCount.Value--;
+
+        Vector3 dropPos = transform.position + Vector3.up;
+
+        GameObject gem = Instantiate(GemManager.Instance.gemPrefab, dropPos, Quaternion.identity);
+        gem.GetComponent<NetworkObject>().Spawn();
     }
 }

@@ -107,6 +107,7 @@ public class Projectile : NetworkBehaviour
             {
                 player.LoseSpell();
                 player.ApplyEffect(effectType);
+                player.DropGem();
             }
 
             if (IsServer)

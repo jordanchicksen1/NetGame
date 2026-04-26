@@ -34,4 +34,14 @@ public class Coin : NetworkBehaviour
 
         GetComponent<NetworkObject>().Despawn();
     }
+
+    public void ResetCoin()
+    {
+        if (!IsServer) return;
+
+        if (!IsSpawned)
+        {
+            GetComponent<NetworkObject>().Spawn();
+        }
+    }
 }

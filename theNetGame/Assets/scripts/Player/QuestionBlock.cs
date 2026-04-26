@@ -80,4 +80,11 @@ public class QuestionBlock : NetworkBehaviour
 
         return fireSpellPrefab;
     }
+
+    public void ResetBlock()
+    {
+        if (!IsServer) return;
+
+        used = false;
+    }
 }
