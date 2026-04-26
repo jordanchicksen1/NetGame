@@ -801,6 +801,38 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 346166458101539715, guid: 9f26c1b2855ef4e4abac84e629818072, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 9a14a8a1184c5f14fbce3338ea4d7a35, type: 2}
+    - target: {fileID: 346166458101539715, guid: 9f26c1b2855ef4e4abac84e629818072, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 1260715531048141648, guid: 9a14a8a1184c5f14fbce3338ea4d7a35, type: 2}
+    - target: {fileID: 346166458101539715, guid: 9f26c1b2855ef4e4abac84e629818072, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 897358585567876542, guid: 9f26c1b2855ef4e4abac84e629818072, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 9a14a8a1184c5f14fbce3338ea4d7a35, type: 2}
+    - target: {fileID: 897358585567876542, guid: 9f26c1b2855ef4e4abac84e629818072, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 1260715531048141648, guid: 9a14a8a1184c5f14fbce3338ea4d7a35, type: 2}
+    - target: {fileID: 897358585567876542, guid: 9f26c1b2855ef4e4abac84e629818072, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1653115550603512804, guid: 9f26c1b2855ef4e4abac84e629818072, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -252
+      objectReference: {fileID: 0}
+    - target: {fileID: 2009991936837163575, guid: 9f26c1b2855ef4e4abac84e629818072, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 84
+      objectReference: {fileID: 0}
     - target: {fileID: 3926060196262576138, guid: 9f26c1b2855ef4e4abac84e629818072, type: 3}
       propertyPath: m_LocalPosition.x
       value: 3.38774
@@ -844,6 +876,42 @@ PrefabInstance:
     - target: {fileID: 4835541601655702377, guid: 9f26c1b2855ef4e4abac84e629818072, type: 3}
       propertyPath: m_Name
       value: HomeScreen
+      objectReference: {fileID: 0}
+    - target: {fileID: 5575094303240444592, guid: 9f26c1b2855ef4e4abac84e629818072, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5575094303240444592, guid: 9f26c1b2855ef4e4abac84e629818072, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -141
+      objectReference: {fileID: 0}
+    - target: {fileID: 5641347293559616776, guid: 9f26c1b2855ef4e4abac84e629818072, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 273
+      objectReference: {fileID: 0}
+    - target: {fileID: 5723727158033402660, guid: 9f26c1b2855ef4e4abac84e629818072, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 9a14a8a1184c5f14fbce3338ea4d7a35, type: 2}
+    - target: {fileID: 5723727158033402660, guid: 9f26c1b2855ef4e4abac84e629818072, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 1260715531048141648, guid: 9a14a8a1184c5f14fbce3338ea4d7a35, type: 2}
+    - target: {fileID: 5723727158033402660, guid: 9f26c1b2855ef4e4abac84e629818072, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8987631614739469055, guid: 9f26c1b2855ef4e4abac84e629818072, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 9a14a8a1184c5f14fbce3338ea4d7a35, type: 2}
+    - target: {fileID: 8987631614739469055, guid: 9f26c1b2855ef4e4abac84e629818072, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 1260715531048141648, guid: 9a14a8a1184c5f14fbce3338ea4d7a35, type: 2}
+    - target: {fileID: 8987631614739469055, guid: 9f26c1b2855ef4e4abac84e629818072, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
