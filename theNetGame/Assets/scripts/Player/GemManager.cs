@@ -35,13 +35,19 @@ public class GemManager : NetworkBehaviour
             if (player.GetGemCount() >= 10)
             {
                 Debug.Log($"PLAYER {player.OwnerClientId} WINS!");
-                // you can add win UI later here
+                ShowWinClientRpc(player.OwnerClientId);
             }
             else
             {
                 SpawnGem();
             }
         }
+    }
+
+    [ClientRpc]
+    void ShowWinClientRpc(ulong winnerId)
+    {
+        WinUI.Instance.ShowWin(winnerId);
     }
 
     void SpawnGem()
