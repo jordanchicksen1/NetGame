@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 740140248412103093}
   - component: {fileID: 4906301782887380216}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Triangle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -102,7 +102,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4451935935483997840}
   - component: {fileID: 7867302176222666261}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: orb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -192,7 +192,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7817592630253127640}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: wallCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -224,7 +224,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2719936893466867376}
   - component: {fileID: 8925550299916401357}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: staff
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -316,7 +316,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8073291895333083490}
   - component: {fileID: 3770351904838675087}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: eye
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -407,7 +407,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6512239436348617362}
   - component: {fileID: 2423664021331065086}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: eye (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -504,7 +504,7 @@ GameObject:
   - component: {fileID: 5246374323244250794}
   - component: {fileID: 8317571695755250899}
   - component: {fileID: 7621817426185410491}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -738,6 +738,7 @@ MonoBehaviour:
   - {fileID: 3976107748148302985, guid: 955077f778b5a1b4397279c68a4897d6, type: 3}
   - {fileID: 7412261060646382759, guid: e1907691dbef7bf448d99839e51cbf78, type: 3}
   - {fileID: 4295853165262876554, guid: 9afbf7dad98bc2e45804edad68644916, type: 3}
+  hitCooldownDuration: 2
 --- !u!114 &8317571695755250899
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -851,7 +852,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2996746519751817195}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: groundCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -882,7 +883,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9208405207744235097}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: firePoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -917,7 +918,7 @@ GameObject:
   - component: {fileID: 744656528120334484}
   - component: {fileID: 2812205847766636636}
   - component: {fileID: 4175657394267719812}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Main Camera
   m_TagString: Untagged
   m_Icon: {fileID: 0}

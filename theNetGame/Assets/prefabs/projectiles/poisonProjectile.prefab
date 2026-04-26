@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6188396629129304097}
   - component: {fileID: 7863858228874165150}
   - component: {fileID: -8997937833676463348}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: poisonProjectile
   m_TagString: PoisonProjectile
   m_Icon: {fileID: 0}
