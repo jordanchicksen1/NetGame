@@ -535,11 +535,24 @@ public class PlayerController2D : NetworkBehaviour
 
         if (gemCount.Value <= 0) return;
 
+        // remove one gem from player
         gemCount.Value--;
 
+        // spawn position slightly above player
         Vector3 dropPos = transform.position + Vector3.up;
 
+        // create gem
         GameObject gem = Instantiate(GemManager.Instance.gemPrefab, dropPos, Quaternion.identity);
-        gem.GetComponent<NetworkObject>().Spawn();
+
+        // spawn on network
+        var netObj = gem.GetComponent<NetworkObject>();
+        netObj.Spawn();
+
+        // initialize drop behaviour (launch + ignore owner)
+        var gemScript = gem.GetComponent<Gem>();
+        if (gemScript != null)
+        {
+            gemScript.InitializeDrop(OwnerClientId);
+        }
     }
 }

@@ -7,22 +7,26 @@ public class Coin : NetworkBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collected) return; // prevents double triggers
+        if (!IsServer) return;
 
+        if (collected) return;
         if (!collision.CompareTag("Player")) return;
 
         var netObj = collision.GetComponent<NetworkObject>();
         if (netObj == null) return;
 
-        collected = true; // lock immediately
+        collected = true;
 
-        CollectCoinRpc(netObj.OwnerClientId);
+        ulong playerId = netObj.OwnerClientId;
+
+        CollectCoin(playerId);
     }
 
-    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    void CollectCoinRpc(ulong playerId)
+    void CollectCoin(ulong playerId)
     {
         if (!IsServer) return;
+
+        if (!NetworkManager.Singleton.ConnectedClients.ContainsKey(playerId)) return;
 
         var playerObj = NetworkManager.Singleton.ConnectedClients[playerId].PlayerObject;
         var player = playerObj.GetComponent<PlayerController2D>();
@@ -32,16 +36,16 @@ public class Coin : NetworkBehaviour
             player.AddCoin();
         }
 
-        GetComponent<NetworkObject>().Despawn();
+        // hide coin instead of despawning
+        gameObject.SetActive(false);
     }
 
+    // called when gem resets the map
     public void ResetCoin()
     {
         if (!IsServer) return;
 
-        if (!IsSpawned)
-        {
-            GetComponent<NetworkObject>().Spawn();
-        }
+        collected = false;
+        gameObject.SetActive(true);
     }
 }
