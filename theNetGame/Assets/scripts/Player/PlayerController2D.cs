@@ -110,6 +110,8 @@ public class PlayerController2D : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        Debug.Log($"Player spawned → Owner: {OwnerClientId}");
+
         Camera playerCam = GetComponentInChildren<Camera>();
 
         if (!IsOwner)

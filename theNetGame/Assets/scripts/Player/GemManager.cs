@@ -1,5 +1,6 @@
-using UnityEngine;
+﻿using UnityEngine;
 using Unity.Netcode;
+using System.Collections;
 
 public class GemManager : NetworkBehaviour
 {
@@ -7,6 +8,8 @@ public class GemManager : NetworkBehaviour
 
     [SerializeField] public GameObject gemPrefab;
     [SerializeField] Transform[] spawnPoints;
+
+    int lastSpawnIndex = -1;
 
     void Awake()
     {
@@ -17,7 +20,7 @@ public class GemManager : NetworkBehaviour
     {
         if (IsServer)
         {
-            SpawnGem();
+            StartCoroutine(SpawnGemWithDelay(0f)); // initial spawn
         }
     }
 
@@ -34,12 +37,13 @@ public class GemManager : NetworkBehaviour
 
             if (player.GetGemCount() >= 10)
             {
-                Debug.Log($"PLAYER {player.OwnerClientId} WINS!");
+                Debug.Log($"PLAYER {player.OwnerClientId + 1} WINS!");
                 ShowWinClientRpc(player.OwnerClientId);
             }
             else
             {
-                SpawnGem();
+                // ⏱ Delay next spawn
+                StartCoroutine(SpawnGemWithDelay(1f));
             }
         }
     }
@@ -50,17 +54,33 @@ public class GemManager : NetworkBehaviour
         WinUI.Instance.ShowWin(winnerId);
     }
 
+    IEnumerator SpawnGemWithDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        SpawnGem();
+    }
+
     void SpawnGem()
     {
         if (!IsServer) return;
 
-        if (spawnPoints.Length == 0)
+        if (spawnPoints == null || spawnPoints.Length == 0)
         {
             Debug.LogWarning("No spawn points assigned!");
             return;
         }
 
-        int index = Random.Range(0, spawnPoints.Length);
+        int index;
+
+        // prevent same spawn twice in a row
+        do
+        {
+            index = Random.Range(0, spawnPoints.Length);
+        }
+        while (spawnPoints.Length > 1 && index == lastSpawnIndex);
+
+        lastSpawnIndex = index;
+
         Transform spawn = spawnPoints[index];
 
         GameObject gem = Instantiate(gemPrefab, spawn.position, Quaternion.identity);
@@ -71,19 +91,19 @@ public class GemManager : NetworkBehaviour
         var gemScript = gem.GetComponent<Gem>();
         if (gemScript != null)
         {
-            gemScript.SetAsWorldGem(); // mark as map gem
+            gemScript.SetAsWorldGem();
         }
+
+        Debug.Log($"Gem spawned at point {index}");
     }
 
     void ResetWorld()
     {
-        // Reset coins (including inactive ones)
         foreach (var coin in FindObjectsByType<Coin>(FindObjectsInactive.Include, FindObjectsSortMode.None))
         {
             coin.ResetCoin();
         }
 
-        // Reset question blocks
         foreach (var block in FindObjectsByType<QuestionBlock>(FindObjectsSortMode.None))
         {
             block.ResetBlock();
