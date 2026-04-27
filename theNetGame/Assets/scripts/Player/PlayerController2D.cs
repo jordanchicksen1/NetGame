@@ -1,5 +1,6 @@
-﻿using UnityEngine;
-using Unity.Netcode;
+﻿using Unity.Netcode;
+using Unity.Netcode.Components;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Users;
 
@@ -87,7 +88,7 @@ public class PlayerController2D : NetworkBehaviour
     float forcedMoveDirection;
 
     [Header("Coin Stuff")]
-    NetworkVariable<int> coinCount = new NetworkVariable<int>(0,NetworkVariableReadPermission.Everyone,NetworkVariableWritePermission.Server);
+    NetworkVariable<int> coinCount = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     [SerializeField] GameObject[] powerUpPrefabs;
 
     [Header("Gem Stuff")]
@@ -103,6 +104,12 @@ public class PlayerController2D : NetworkBehaviour
     float hitCooldownTimer;
     bool canBeHit = true;
 
+    [Header("Animation Stuff")]
+    [SerializeField] GameObject hostVisual;
+    [SerializeField] GameObject clientVisual;
+
+    Animator anim;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -114,16 +121,34 @@ public class PlayerController2D : NetworkBehaviour
 
         Camera playerCam = GetComponentInChildren<Camera>();
 
+        // Animation + visual setup
+        if (IsOwner)
+        {
+            hostVisual.SetActive(true);
+            clientVisual.SetActive(false);
+            anim = hostVisual.GetComponent<Animator>();
+        }
+        else
+        {
+            hostVisual.SetActive(false);
+            clientVisual.SetActive(true);
+            anim = clientVisual.GetComponent<Animator>();
+        }
+
+        var netAnim = GetComponent<NetworkAnimator>();
+        if (netAnim != null)
+        {
+            netAnim.Animator = anim;
+        }
+
         if (!IsOwner)
         {
             netFacingRight.OnValueChanged += OnFacingDirectionChanged;
             currentEffect.OnValueChanged += OnEffectChanged;
-            
 
             facingRight = netFacingRight.Value;
             ApplyFlipVisual();
 
-            // Apply effect immediately if already active
             OnEffectChanged(StatusEffectType.None, currentEffect.Value);
 
             if (playerCam != null)
@@ -144,7 +169,6 @@ public class PlayerController2D : NetworkBehaviour
         var gamepads = Gamepad.all;
 
 #if UNITY_EDITOR
-        // Editor: allow multiple controllers (for local testing)
         int playerIndex = (int)OwnerClientId;
 
         if (playerIndex < gamepads.Count)
@@ -156,15 +180,14 @@ public class PlayerController2D : NetworkBehaviour
             InputUser.PerformPairingWithDevice(gamepads[0], playerInput.user);
         }
 #else
-//  Build: each machine uses its own first controller
-if (gamepads.Count > 0)
-{
-    InputUser.PerformPairingWithDevice(gamepads[0], playerInput.user);
-}
-else if (Keyboard.current != null)
-{
-    InputUser.PerformPairingWithDevice(Keyboard.current, playerInput.user);
-}
+        if (gamepads.Count > 0)
+        {
+            InputUser.PerformPairingWithDevice(gamepads[0], playerInput.user);
+        }
+        else if (Keyboard.current != null)
+        {
+            InputUser.PerformPairingWithDevice(Keyboard.current, playerInput.user);
+        }
 #endif
 
         moveAction = playerInput.actions["Move"];
@@ -216,13 +239,11 @@ else if (Keyboard.current != null)
 
     void FixedUpdate()
     {
-        // ALWAYS run timer on server (for ALL players)
         if (IsServer)
         {
             HandleStatusEffect();
         }
 
-        // Only movement is owner-only
         if (!IsOwner) return;
 
         if (Time.frameCount % 2 == 0)
@@ -240,6 +261,8 @@ else if (Keyboard.current != null)
         HandleWallSlide();
         ApplyMovement();
 
+        UpdateAnimations();
+
         if (isGrounded) isWallJumping = false;
 
         wallJumpTimer -= Time.fixedDeltaTime;
@@ -247,6 +270,23 @@ else if (Keyboard.current != null)
         shootTimer -= Time.fixedDeltaTime;
 
         downPressed = false;
+    }
+
+    void UpdateAnimations()
+    {
+        if (!IsOwner || anim == null) return;
+
+        bool isRunning = Mathf.Abs(rb.linearVelocity.x) > 0.1f && isGrounded;
+        bool isJumping = !isGrounded && rb.linearVelocity.y > 0.1f;
+        bool isFalling = !isGrounded && rb.linearVelocity.y < -0.1f;
+        bool isSliding = isWallSliding;
+        bool isIdle = isGrounded && Mathf.Abs(rb.linearVelocity.x) < 0.1f;
+
+        anim.SetBool("isRunning", isRunning);
+        anim.SetBool("isJumping", isJumping);
+        anim.SetBool("isFalling", isFalling);
+        anim.SetBool("isSliding", isSliding);
+        anim.SetBool("isIdle", isIdle);
     }
 
     void ApplyMovement()
@@ -264,13 +304,11 @@ else if (Keyboard.current != null)
 
         if (currentEffect.Value == StatusEffectType.Fire)
         {
-            // Ensure direction is always valid
             if (forcedMoveDirection == 0f)
             {
                 forcedMoveDirection = facingRight ? 1f : -1f;
             }
 
-            // Allow player to change direction
             if (moveInput.x != 0)
             {
                 forcedMoveDirection = Mathf.Sign(moveInput.x);
@@ -422,7 +460,6 @@ else if (Keyboard.current != null)
     {
         if (!IsServer) return;
 
-        // block if on cooldown
         if (!canBeHit) return;
 
         currentEffect.Value = effect;
@@ -443,7 +480,6 @@ else if (Keyboard.current != null)
                 break;
         }
 
-        // start cooldown AFTER effect ends
         canBeHit = false;
     }
 
@@ -451,7 +487,6 @@ else if (Keyboard.current != null)
     {
         if (!IsServer) return;
 
-        // effect running
         if (currentEffect.Value != StatusEffectType.None)
         {
             effectTimer -= Time.fixedDeltaTime;
@@ -459,15 +494,12 @@ else if (Keyboard.current != null)
             if (effectTimer <= 0f)
             {
                 currentEffect.Value = StatusEffectType.None;
-
-                // start cooldown AFTER effect ends
                 hitCooldownTimer = hitCooldownDuration;
             }
 
             return;
         }
 
-        // cooldown running
         if (!canBeHit)
         {
             hitCooldownTimer -= Time.fixedDeltaTime;
@@ -591,20 +623,15 @@ else if (Keyboard.current != null)
 
         if (gemCount.Value <= 0) return;
 
-        // remove one gem from player
         gemCount.Value--;
 
-        // spawn position slightly above player
         Vector3 dropPos = transform.position + Vector3.up;
 
-        // create gem
         GameObject gem = Instantiate(GemManager.Instance.gemPrefab, dropPos, Quaternion.identity);
 
-        // spawn on network
         var netObj = gem.GetComponent<NetworkObject>();
         netObj.Spawn();
 
-        // initialize drop behaviour (launch + ignore owner)
         var gemScript = gem.GetComponent<Gem>();
         if (gemScript != null)
         {

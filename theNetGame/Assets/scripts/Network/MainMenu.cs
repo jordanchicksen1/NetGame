@@ -42,6 +42,18 @@ public class MainMenu : MonoBehaviour
 
     public void StartGame()
     {
+        int count = NetworkManager.Singleton.ConnectedClientsList.Count;
+
+        Debug.Log("Players connected: " + count);
+
+        if (count < 2)
+        {
+            Debug.Log("Not enough players yet!");
+            if (statusText != null)
+                statusText.text = "Waiting for player...";
+            return;
+        }
+
         Debug.Log("Starting Game Scene...");
 
         if (menuPanel != null)
