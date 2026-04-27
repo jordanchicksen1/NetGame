@@ -110,6 +110,13 @@ public class PlayerController2D : NetworkBehaviour
 
     Animator anim;
 
+    [Header("VFX")]
+    [SerializeField] GameObject fireEffect;
+    [SerializeField] GameObject iceEffect;
+    [SerializeField] GameObject poisonEffect;
+
+    GameObject activeEffectVFX;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -120,6 +127,9 @@ public class PlayerController2D : NetworkBehaviour
         Debug.Log($"Player spawned → Owner: {OwnerClientId}");
 
         Camera playerCam = GetComponentInChildren<Camera>();
+
+        currentEffect.OnValueChanged += OnEffectChanged;
+
 
         // Animation + visual setup
         if (OwnerClientId == NetworkManager.ServerClientId)
@@ -146,7 +156,7 @@ public class PlayerController2D : NetworkBehaviour
         if (!IsOwner)
         {
             netFacingRight.OnValueChanged += OnFacingDirectionChanged;
-            currentEffect.OnValueChanged += OnEffectChanged;
+            //currentEffect.OnValueChanged += OnEffectChanged;
 
             facingRight = netFacingRight.Value;
             ApplyFlipVisual();
@@ -370,6 +380,14 @@ public class PlayerController2D : NetworkBehaviour
 
     void OnEffectChanged(StatusEffectType oldEffect, StatusEffectType newEffect)
     {
+        // Remove old VFX
+        if (activeEffectVFX != null)
+        {
+            Destroy(activeEffectVFX);
+            activeEffectVFX = null;
+        }
+
+        // Apply gameplay logic (keep your existing stuff)
         if (newEffect == StatusEffectType.Ice)
         {
             rb.linearVelocity = Vector2.zero;
@@ -378,6 +396,30 @@ public class PlayerController2D : NetworkBehaviour
         if (newEffect == StatusEffectType.Fire)
         {
             forcedMoveDirection = facingRight ? 1f : -1f;
+        }
+
+        // Spawn new VFX
+        GameObject prefab = null;
+
+        switch (newEffect)
+        {
+            case StatusEffectType.Fire:
+                prefab = fireEffect;
+                break;
+
+            case StatusEffectType.Ice:
+                prefab = iceEffect;
+                break;
+
+            case StatusEffectType.Poison:
+                prefab = poisonEffect;
+                break;
+        }
+
+        if (prefab != null)
+        {
+            activeEffectVFX = Instantiate(prefab, transform);
+            activeEffectVFX.transform.localPosition = Vector3.zero;
         }
     }
 

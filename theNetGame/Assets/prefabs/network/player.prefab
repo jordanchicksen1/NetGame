@@ -794,7 +794,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1327169974
+  GlobalObjectIdHash: 1278560582
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -858,6 +858,9 @@ MonoBehaviour:
   hitCooldownDuration: 2
   hostVisual: {fileID: 8954486034239828964}
   clientVisual: {fileID: 2355149195237318973}
+  fireEffect: {fileID: 6749056202517869155, guid: 9a458215cd72c2241817f387b494cc08, type: 3}
+  iceEffect: {fileID: 3270291052711729791, guid: 7a041d4fe51ffa84abd3a568dfc2fc6c, type: 3}
+  poisonEffect: {fileID: 8583078574614519084, guid: 67e542d8eaaad824099df5ea7bf9731c, type: 3}
 --- !u!114 &8317571695755250899
 MonoBehaviour:
   m_ObjectHideFlags: 0
