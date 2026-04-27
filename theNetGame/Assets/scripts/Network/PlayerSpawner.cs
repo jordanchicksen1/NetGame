@@ -1,37 +1,37 @@
+﻿using Unity.Netcode;
 using UnityEngine;
-using Unity.Netcode;
+using UnityEngine.SceneManagement;
 
 public class PlayerSpawner : NetworkBehaviour
 {
     [SerializeField] GameObject playerPrefab;
     [SerializeField] Transform[] spawnPoints;
 
-    bool hasSpawnedInitial = false;
-
     public override void OnNetworkSpawn()
     {
         if (!IsServer) return;
 
-        // Prevent double spawning
-        if (!hasSpawnedInitial)
-        {
-            hasSpawnedInitial = true;
-
-            foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
-            {
-                SpawnPlayer(client.ClientId);
-            }
-        }
-
-        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+        // Listen for scene load completion
+        NetworkManager.SceneManager.OnLoadEventCompleted += OnSceneLoaded;
     }
 
-    void OnClientConnected(ulong clientId)
+    void OnSceneLoaded(string sceneName, LoadSceneMode mode, System.Collections.Generic.List<ulong> clientsCompleted, System.Collections.Generic.List<ulong> clientsTimedOut)
     {
         if (!IsServer) return;
 
-        // Prevent spawning if player already exists
-        if (NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject != null)
+        Debug.Log("All clients loaded scene → spawning players");
+
+        foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+        {
+            SpawnPlayerIfNeeded(client.ClientId);
+        }
+    }
+
+    void SpawnPlayerIfNeeded(ulong clientId)
+    {
+        var client = NetworkManager.Singleton.ConnectedClients[clientId];
+
+        if (client.PlayerObject != null)
             return;
 
         SpawnPlayer(clientId);
@@ -43,17 +43,15 @@ public class PlayerSpawner : NetworkBehaviour
 
         if (spawnPoints != null && spawnPoints.Length > 0)
         {
-            // LOCKED SPAWN LOGIC
             int index = (int)clientId;
 
             if (index >= spawnPoints.Length)
-                index = 0; // fallback (just in case)
+                index = 0;
 
             spawnPos = spawnPoints[index].position;
         }
 
         GameObject player = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
-
         player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
 
         Debug.Log($"Spawned Player {clientId + 1} at {spawnPos}");
@@ -61,11 +59,11 @@ public class PlayerSpawner : NetworkBehaviour
 
     public override void OnDestroy()
     {
-        base.OnDestroy(); 
+        base.OnDestroy();
 
-        if (NetworkManager.Singleton != null)
+        if (NetworkManager != null && NetworkManager.SceneManager != null)
         {
-            NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
+            NetworkManager.SceneManager.OnLoadEventCompleted -= OnSceneLoaded;
         }
     }
 }

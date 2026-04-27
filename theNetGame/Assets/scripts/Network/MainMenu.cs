@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
@@ -8,7 +8,14 @@ public class MainMenu : MonoBehaviour
     [Header("UI")]
     [SerializeField] TextMeshProUGUI joinCodeText;
     [SerializeField] TMP_InputField joinCodeInput;
-    [SerializeField] GameObject menuPanel; // drag your menu panel here
+    [SerializeField] TextMeshProUGUI statusText; // 👈 NEW
+    [SerializeField] GameObject menuPanel;
+
+    void Start()
+    {
+        if (statusText != null)
+            statusText.text = "Not connected";
+    }
 
     // ================= HOST =================
     public async void HostGame()
@@ -27,6 +34,10 @@ public class MainMenu : MonoBehaviour
 
         joinCodeText.gameObject.SetActive(true);
         joinCodeText.text = "Code: " + code;
+
+        // Optional host feedback
+        if (statusText != null)
+            statusText.text = "Hosting...\nWaiting for player...";
     }
 
     public void StartGame()
@@ -38,7 +49,7 @@ public class MainMenu : MonoBehaviour
 
         NetworkManager.Singleton.SceneManager.LoadScene(
             "Game",
-            UnityEngine.SceneManagement.LoadSceneMode.Single
+            LoadSceneMode.Single
         );
     }
 
@@ -49,15 +60,51 @@ public class MainMenu : MonoBehaviour
 
         Debug.Log("Joining with code: " + code);
 
-        await RelayManager.Instance.JoinRelay(code);
+        if (statusText != null)
+            statusText.text = "Connecting...";
 
-        // hide menu AFTER successful join
-        if (menuPanel != null)
-            menuPanel.SetActive(false);
+        try
+        {
+            await RelayManager.Instance.JoinRelay(code);
+
+            Debug.Log("Joined relay successfully");
+
+            if (statusText != null)
+                statusText.text = "Connected!\nHost must press Start!";
+        }
+        catch
+        {
+            Debug.LogError("Failed to join relay");
+
+            if (statusText != null)
+                statusText.text = "Connection failed.\nCheck code and try again.";
+        }
     }
 
     public void QuitGame()
     {
         Application.Quit();
+    }
+
+    // ================= SCENE HANDLING =================
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == "Game")
+        {
+            if (menuPanel != null)
+            {
+                menuPanel.SetActive(false);
+            }
+        }
     }
 }
