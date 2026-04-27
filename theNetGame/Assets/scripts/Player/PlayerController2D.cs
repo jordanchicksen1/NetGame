@@ -142,12 +142,30 @@ public class PlayerController2D : NetworkBehaviour
         playerInput.user.UnpairDevices();
 
         var gamepads = Gamepad.all;
+
+#if UNITY_EDITOR
+        // Editor: allow multiple controllers (for local testing)
         int playerIndex = (int)OwnerClientId;
 
         if (playerIndex < gamepads.Count)
         {
             InputUser.PerformPairingWithDevice(gamepads[playerIndex], playerInput.user);
         }
+        else if (gamepads.Count > 0)
+        {
+            InputUser.PerformPairingWithDevice(gamepads[0], playerInput.user);
+        }
+#else
+//  Build: each machine uses its own first controller
+if (gamepads.Count > 0)
+{
+    InputUser.PerformPairingWithDevice(gamepads[0], playerInput.user);
+}
+else if (Keyboard.current != null)
+{
+    InputUser.PerformPairingWithDevice(Keyboard.current, playerInput.user);
+}
+#endif
 
         moveAction = playerInput.actions["Move"];
         jumpAction = playerInput.actions["Jump"];
