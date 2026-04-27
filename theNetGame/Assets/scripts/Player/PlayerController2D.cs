@@ -122,23 +122,23 @@ public class PlayerController2D : NetworkBehaviour
         Camera playerCam = GetComponentInChildren<Camera>();
 
         // Animation + visual setup
-        if (IsOwner)
+        if (OwnerClientId == NetworkManager.ServerClientId)
         {
+            // This is the HOST player
             hostVisual.SetActive(true);
             clientVisual.SetActive(false);
-            anim = hostVisual.GetComponent<Animator>();
         }
         else
         {
+            // This is a CLIENT player
             hostVisual.SetActive(false);
             clientVisual.SetActive(true);
-            anim = clientVisual.GetComponent<Animator>();
         }
 
         var netAnim = GetComponent<NetworkAnimator>();
         if (netAnim != null)
         {
-            netAnim.Animator = anim;
+            anim = GetComponent<Animator>();
         }
 
         if (!IsOwner)
@@ -276,17 +276,15 @@ public class PlayerController2D : NetworkBehaviour
     {
         if (!IsOwner || anim == null) return;
 
-        bool isRunning = Mathf.Abs(rb.linearVelocity.x) > 0.1f && isGrounded;
-        bool isJumping = !isGrounded && rb.linearVelocity.y > 0.1f;
-        bool isFalling = !isGrounded && rb.linearVelocity.y < -0.1f;
-        bool isSliding = isWallSliding;
-        bool isIdle = isGrounded && Mathf.Abs(rb.linearVelocity.x) < 0.1f;
+        bool walking = Mathf.Abs(rb.linearVelocity.x) > 0.1f && isGrounded;
+        bool jumping = !isGrounded && rb.linearVelocity.y > 0.1f;
+        bool sliding = isWallSliding;
 
-        anim.SetBool("isRunning", isRunning);
-        anim.SetBool("isJumping", isJumping);
-        anim.SetBool("isFalling", isFalling);
-        anim.SetBool("isSliding", isSliding);
-        anim.SetBool("isIdle", isIdle);
+        anim.SetBool("Walking", walking);
+        anim.SetBool("Jumping", jumping);
+        anim.SetBool("Sliding", sliding);
+
+        
     }
 
     void ApplyMovement()
