@@ -11,7 +11,7 @@ public class PlayerSpawner : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        // Listen for scene load completion
+        
         NetworkManager.SceneManager.OnLoadEventCompleted += OnSceneLoaded;
     }
 

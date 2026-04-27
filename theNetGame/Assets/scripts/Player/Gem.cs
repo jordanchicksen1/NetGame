@@ -15,7 +15,7 @@ public class Gem : NetworkBehaviour
         rb = GetComponent<Rigidbody2D>();
     }
 
-    // called when gem is dropped from player
+    
     public void InitializeDrop(ulong ownerId)
     {
         ignorePlayerId = ownerId;
@@ -30,7 +30,7 @@ public class Gem : NetworkBehaviour
         rb.AddForce(force, ForceMode2D.Impulse);
     }
 
-    // called when gem is spawned in the world
+    
     public void SetAsWorldGem()
     {
         isWorldGem = true;
@@ -55,7 +55,7 @@ public class Gem : NetworkBehaviour
         var netObj = collision.GetComponent<NetworkObject>();
         if (netObj == null) return;
 
-        // prevent instant re-collection by same player
+        
         if (ignoreTimer > 0f && netObj.OwnerClientId == ignorePlayerId)
             return;
 

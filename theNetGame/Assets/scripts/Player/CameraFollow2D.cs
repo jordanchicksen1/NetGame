@@ -21,10 +21,10 @@ public class CameraFollow2D : MonoBehaviour
 
         Vector3 currentPos = transform.position;
 
-        // --- X always follows ---
+        
         float targetX = target.position.x + xOffset;
 
-        // --- Y only moves if outside dead zone ---
+       
         float targetY = currentPos.y;
 
         float deltaY = target.position.y - currentPos.y;

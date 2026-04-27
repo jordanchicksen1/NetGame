@@ -9,7 +9,7 @@ public class CoinUI : MonoBehaviour
 
     void Update()
     {
-        // Keep trying until we find the local player
+        
         if (player == null)
         {
             FindLocalPlayer();

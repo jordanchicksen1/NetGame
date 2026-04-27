@@ -23,7 +23,7 @@ public class QuestionBlock : NetworkBehaviour
         {
             var player = collision.gameObject.GetComponent<PlayerController2D>();
 
-            // Only the player who owns this character can trigger it
+        
             if (player != null && player.IsOwner)
             {
                 HitBlockServerRpc(player.OwnerClientId);
@@ -40,7 +40,7 @@ public class QuestionBlock : NetworkBehaviour
 
         Vector3 spawnPos = transform.position + Vector3.up * 1.5f;
 
-        // RNG: 10% chance for power-up
+      
         if (Random.value < powerUpChance)
         {
             GameObject prefab = GetRandomSpellPrefab();
@@ -50,7 +50,7 @@ public class QuestionBlock : NetworkBehaviour
         }
         else
         {
-            // Give coin to player
+            
             var player = NetworkManager.Singleton.ConnectedClients[playerId].PlayerObject
                 .GetComponent<PlayerController2D>();
 
@@ -59,7 +59,7 @@ public class QuestionBlock : NetworkBehaviour
                 player.AddCoin();
             }
 
-            // Spawn coin visual
+            
             GameObject coin = Instantiate(coinVisualPrefab, spawnPos, Quaternion.identity);
             coin.GetComponent<NetworkObject>().Spawn();
 

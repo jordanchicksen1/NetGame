@@ -20,7 +20,7 @@ public class GemManager : NetworkBehaviour
     {
         if (IsServer)
         {
-            StartCoroutine(SpawnGemWithDelay(0f)); // initial spawn
+            StartCoroutine(SpawnGemWithDelay(0f)); 
         }
     }
 
@@ -30,7 +30,7 @@ public class GemManager : NetworkBehaviour
 
         player.AddGem();
 
-        // ONLY reset + spawn if this was a world gem
+        
         if (isWorldGem)
         {
             ResetWorld();
@@ -42,7 +42,7 @@ public class GemManager : NetworkBehaviour
             }
             else
             {
-                // ⏱ Delay next spawn
+               
                 StartCoroutine(SpawnGemWithDelay(1f));
             }
         }
@@ -72,7 +72,7 @@ public class GemManager : NetworkBehaviour
 
         int index;
 
-        // prevent same spawn twice in a row
+        
         do
         {
             index = Random.Range(0, spawnPoints.Length);

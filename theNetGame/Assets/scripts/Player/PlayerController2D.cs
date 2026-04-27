@@ -140,7 +140,7 @@ public class PlayerController2D : NetworkBehaviour
         currentEffect.OnValueChanged += OnEffectChanged;
 
 
-        // Animation + visual setup
+        
         if (OwnerClientId == NetworkManager.ServerClientId)
         {
             hostVisual.SetActive(true);
@@ -156,7 +156,7 @@ public class PlayerController2D : NetworkBehaviour
             anim = clientVisual.GetComponent<Animator>();
         }
 
-        // SAFETY CHECK (VERY IMPORTANT)
+        
         if (anim == null)
         {
             Debug.LogError("Animator NOT FOUND on visual!");
@@ -246,7 +246,7 @@ public class PlayerController2D : NetworkBehaviour
             jumpPressed = true;
             jumpHeld = true;
 
-            anim.SetBool("Jumping", true); //  trigger jump immediately
+            anim.SetBool("Jumping", true); 
         }
 
         if (jumpAction.WasReleasedThisFrame())
@@ -395,8 +395,8 @@ public class PlayerController2D : NetworkBehaviour
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             coyoteTimeCounter = 0f;
 
-            PlaySFXLocal(jumpSFX);          // instant feedback
-            PlaySFXClientRpc(0);            // everyone hears it
+            PlaySFXLocal(jumpSFX);          
+            PlaySFXClientRpc(0);            
         }
 
         if (rb.linearVelocity.y < 0)
@@ -413,14 +413,14 @@ public class PlayerController2D : NetworkBehaviour
 
     void OnEffectChanged(StatusEffectType oldEffect, StatusEffectType newEffect)
     {
-        // Remove old VFX
+        
         if (activeEffectVFX != null)
         {
             Destroy(activeEffectVFX);
             activeEffectVFX = null;
         }
 
-        // Apply gameplay logic (keep your existing stuff)
+        
         if (newEffect == StatusEffectType.Ice)
         {
             rb.linearVelocity = Vector2.zero;
@@ -431,7 +431,7 @@ public class PlayerController2D : NetworkBehaviour
             forcedMoveDirection = facingRight ? 1f : -1f;
         }
 
-        // Spawn new VFX
+        
         GameObject prefab = null;
 
         switch (newEffect)
@@ -510,7 +510,7 @@ public class PlayerController2D : NetworkBehaviour
             isWallSliding = true;
 
             if (anim == null) return;
-            anim.SetBool("Sliding", true); // HERE
+            anim.SetBool("Sliding", true); 
 
             if (rb.linearVelocity.y < -wallSlideSpeed)
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, -wallSlideSpeed);
@@ -520,7 +520,7 @@ public class PlayerController2D : NetworkBehaviour
             isWallSliding = false;
 
             if (anim == null) return;
-            anim.SetBool("Sliding", false); //  HERE
+            anim.SetBool("Sliding", false); 
         }
     }
 

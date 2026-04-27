@@ -21,7 +21,7 @@ public class BlockCoinVisual : NetworkBehaviour
 
         transform.position += Vector3.up * velocity * Time.deltaTime;
 
-        // When it starts falling → despawn
+        
         if (velocity <= 0)
         {
             GetComponent<NetworkObject>().Despawn();

@@ -28,7 +28,7 @@ public class GemUI : MonoBehaviour
                 }
             }
 
-            yield return null; // wait 1 frame and try again
+            yield return null; 
         }
     }
 

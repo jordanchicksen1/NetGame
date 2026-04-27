@@ -35,7 +35,7 @@ public class MainMenu : MonoBehaviour
         joinCodeText.gameObject.SetActive(true);
         joinCodeText.text = "Code: " + code;
 
-        // Optional host feedback
+        
         if (statusText != null)
             statusText.text = "Hosting...\nWaiting for player...";
     }
