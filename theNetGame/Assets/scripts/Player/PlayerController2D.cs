@@ -117,6 +117,15 @@ public class PlayerController2D : NetworkBehaviour
 
     GameObject activeEffectVFX;
 
+    [Header("SFX")]
+    [SerializeField] AudioSource audioSource;
+
+    [SerializeField] AudioClip jumpSFX;
+    [SerializeField] AudioClip coinSFX;
+    [SerializeField] AudioClip powerUpSFX;
+    [SerializeField] AudioClip gemSFX;
+    [SerializeField] AudioClip hitSFX;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -306,6 +315,27 @@ public class PlayerController2D : NetworkBehaviour
         
     }
 
+    void PlaySFXLocal(AudioClip clip)
+    {
+        if (audioSource != null && clip != null)
+        {
+            audioSource.PlayOneShot(clip);
+        }
+    }
+
+    [ClientRpc]
+    void PlaySFXClientRpc(int soundId)
+    {
+        switch (soundId)
+        {
+            case 0: PlaySFXLocal(jumpSFX); break;
+            case 1: PlaySFXLocal(coinSFX); break;
+            case 2: PlaySFXLocal(powerUpSFX); break;
+            case 3: PlaySFXLocal(gemSFX); break;
+            case 4: PlaySFXLocal(hitSFX); break;
+        }
+    }
+
     void ApplyMovement()
     {
         if (isGroundPounding) return;
@@ -364,6 +394,9 @@ public class PlayerController2D : NetworkBehaviour
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             coyoteTimeCounter = 0f;
+
+            PlaySFXLocal(jumpSFX);          // instant feedback
+            PlaySFXClientRpc(0);            // everyone hears it
         }
 
         if (rb.linearVelocity.y < 0)
@@ -522,6 +555,7 @@ public class PlayerController2D : NetworkBehaviour
         if (!canBeHit) return;
 
         currentEffect.Value = effect;
+        PlaySFXClientRpc(4);
 
         switch (effect)
         {
@@ -630,6 +664,7 @@ public class PlayerController2D : NetworkBehaviour
         if (!IsServer) return;
 
         coinCount.Value++;
+        PlaySFXClientRpc(1);
 
         Debug.Log($"ADD COIN CALLED → Player {OwnerClientId} = {coinCount.Value}");
 
@@ -657,6 +692,7 @@ public class PlayerController2D : NetworkBehaviour
 
         GameObject power = Instantiate(prefab, spawnPos, Quaternion.identity);
         power.GetComponent<NetworkObject>().Spawn();
+        PlaySFXClientRpc(2);
     }
 
     public int GetCoinCount()
@@ -669,6 +705,7 @@ public class PlayerController2D : NetworkBehaviour
         if (!IsServer) return;
 
         gemCount.Value++;
+        PlaySFXClientRpc(3);
     }
 
     public int GetGemCount()
