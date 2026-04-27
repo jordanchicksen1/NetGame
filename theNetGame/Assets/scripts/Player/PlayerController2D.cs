@@ -124,21 +124,23 @@ public class PlayerController2D : NetworkBehaviour
         // Animation + visual setup
         if (OwnerClientId == NetworkManager.ServerClientId)
         {
-            // This is the HOST player
             hostVisual.SetActive(true);
             clientVisual.SetActive(false);
+
+            anim = hostVisual.GetComponent<Animator>();
         }
         else
         {
-            // This is a CLIENT player
             hostVisual.SetActive(false);
             clientVisual.SetActive(true);
+
+            anim = clientVisual.GetComponent<Animator>();
         }
 
-        var netAnim = GetComponent<NetworkAnimator>();
-        if (netAnim != null)
+        // SAFETY CHECK (VERY IMPORTANT)
+        if (anim == null)
         {
-            anim = GetComponent<Animator>();
+            Debug.LogError("Animator NOT FOUND on visual!");
         }
 
         if (!IsOwner)
@@ -215,10 +217,17 @@ public class PlayerController2D : NetworkBehaviour
 
         moveInput = moveAction.ReadValue<Vector2>();
 
+        bool walking = Mathf.Abs(moveInput.x) > 0.1f && isGrounded;
+        
+        if (anim == null) return;
+        anim.SetBool("Walking", walking);
+
         if (jumpAction.WasPressedThisFrame())
         {
             jumpPressed = true;
             jumpHeld = true;
+
+            anim.SetBool("Jumping", true); //  trigger jump immediately
         }
 
         if (jumpAction.WasReleasedThisFrame())
@@ -425,12 +434,18 @@ public class PlayerController2D : NetworkBehaviour
         {
             isWallSliding = true;
 
+            if (anim == null) return;
+            anim.SetBool("Sliding", true); // HERE
+
             if (rb.linearVelocity.y < -wallSlideSpeed)
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, -wallSlideSpeed);
         }
         else
         {
             isWallSliding = false;
+
+            if (anim == null) return;
+            anim.SetBool("Sliding", false); //  HERE
         }
     }
 
@@ -442,6 +457,10 @@ public class PlayerController2D : NetworkBehaviour
         {
             coyoteTimeCounter = coyoteTime;
             isGroundPounding = false;
+
+            //  IMPORTANT
+            if (anim == null) return;
+            anim.SetBool("Jumping", false);
         }
         else
         {
