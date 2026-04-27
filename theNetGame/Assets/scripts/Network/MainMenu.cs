@@ -8,7 +8,7 @@ public class MainMenu : MonoBehaviour
     [Header("UI")]
     [SerializeField] TextMeshProUGUI joinCodeText;
     [SerializeField] TMP_InputField joinCodeInput;
-    [SerializeField] TextMeshProUGUI statusText; // 👈 NEW
+    [SerializeField] TextMeshProUGUI statusText; 
     [SerializeField] GameObject menuPanel;
 
     void Start()
