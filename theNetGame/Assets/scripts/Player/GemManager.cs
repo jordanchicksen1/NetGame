@@ -30,21 +30,19 @@ public class GemManager : NetworkBehaviour
 
         player.AddGem();
 
-        
+        // CHECK WIN FOR ALL GEMS
+        if (player.GetGemCount() >= 10)
+        {
+            Debug.Log($"PLAYER {player.OwnerClientId + 1} WINS!");
+            ShowWinClientRpc(player.OwnerClientId);
+            return;
+        }
+
+        // ONLY reset/spawn if it was a world gem
         if (isWorldGem)
         {
             ResetWorld();
-
-            if (player.GetGemCount() >= 10)
-            {
-                Debug.Log($"PLAYER {player.OwnerClientId + 1} WINS!");
-                ShowWinClientRpc(player.OwnerClientId);
-            }
-            else
-            {
-               
-                StartCoroutine(SpawnGemWithDelay(1f));
-            }
+            StartCoroutine(SpawnGemWithDelay(1f));
         }
     }
 

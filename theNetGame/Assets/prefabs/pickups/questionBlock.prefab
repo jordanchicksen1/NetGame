@@ -183,3 +183,5 @@ MonoBehaviour:
   iceSpellPrefab: {fileID: 7412261060646382759, guid: e1907691dbef7bf448d99839e51cbf78, type: 3}
   poisonSpellPrefab: {fileID: 4295853165262876554, guid: 9afbf7dad98bc2e45804edad68644916, type: 3}
   powerUpChance: 0.1
+  unusedSprite: {fileID: 21300000, guid: 51071fac8bfe0e941937b32e824d9809, type: 3}
+  usedSprite: {fileID: 7288312986195548789, guid: df680b02c93d4064b90dd11cd891d944, type: 3}

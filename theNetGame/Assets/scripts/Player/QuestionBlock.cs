@@ -11,9 +11,21 @@ public class QuestionBlock : NetworkBehaviour
     [SerializeField] GameObject iceSpellPrefab;
     [SerializeField] GameObject poisonSpellPrefab;
 
+
     [SerializeField] float powerUpChance = 0.1f; 
 
     bool used = false;
+
+    [Header("Sprites")]
+    [SerializeField] Sprite unusedSprite;
+    [SerializeField] Sprite usedSprite;
+
+    SpriteRenderer sr;
+
+    void Awake()
+    {
+        sr = GetComponent<SpriteRenderer>();
+    }
 
     void OnCollisionEnter2D(Collision2D collision)
     {
@@ -37,6 +49,7 @@ public class QuestionBlock : NetworkBehaviour
         if (used) return;
 
         used = true;
+        UpdateSpriteClientRpc();
 
         Vector3 spawnPos = transform.position + Vector3.up * 1.5f;
 
@@ -67,6 +80,15 @@ public class QuestionBlock : NetworkBehaviour
         }
     }
 
+    [ClientRpc]
+    void UpdateSpriteClientRpc()
+    {
+        if (sr != null && usedSprite != null)
+        {
+            sr.sprite = usedSprite;
+        }
+    }
+
     GameObject GetRandomSpellPrefab()
     {
         int rand = Random.Range(0, 3);
@@ -86,5 +108,16 @@ public class QuestionBlock : NetworkBehaviour
         if (!IsServer) return;
 
         used = false;
+
+        ResetSpriteClientRpc();
+    }
+
+    [ClientRpc]
+    void ResetSpriteClientRpc()
+    {
+        if (sr != null && unusedSprite != null)
+        {
+            sr.sprite = unusedSprite;
+        }
     }
 }
