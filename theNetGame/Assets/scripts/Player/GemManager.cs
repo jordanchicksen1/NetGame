@@ -70,7 +70,6 @@ public class GemManager : NetworkBehaviour
 
         int index;
 
-        
         do
         {
             index = Random.Range(0, spawnPoints.Length);
@@ -81,18 +80,33 @@ public class GemManager : NetworkBehaviour
 
         Transform spawn = spawnPoints[index];
 
-        GameObject gem = Instantiate(gemPrefab, spawn.position, Quaternion.identity);
+        // DEBUG INFO
+        Debug.Log(
+            $"GEM SPAWN\n" +
+            $"Index: {index}\n" +
+            $"Spawn Name: {spawn.name}\n" +
+            $"Position: {spawn.position}"
+        );
+
+        GameObject gem = Instantiate(
+            gemPrefab,
+            spawn.position,
+            Quaternion.identity
+        );
+
+        Debug.Log(
+            $"ACTUAL GEM POSITION: {gem.transform.position}"
+        );
 
         var netObj = gem.GetComponent<NetworkObject>();
         netObj.Spawn();
 
         var gemScript = gem.GetComponent<Gem>();
+
         if (gemScript != null)
         {
             gemScript.SetAsWorldGem();
         }
-
-        Debug.Log($"Gem spawned at point {index}");
     }
 
     void ResetWorld()
