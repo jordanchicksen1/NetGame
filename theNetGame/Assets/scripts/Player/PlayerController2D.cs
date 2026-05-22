@@ -3,6 +3,9 @@ using Unity.Netcode.Components;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Users;
+using UnityEngine.InputSystem.DualShock;
+using UnityEngine.InputSystem.XInput;
+using System.Collections;
 
 public class PlayerController2D : NetworkBehaviour
 {
@@ -126,9 +129,16 @@ public class PlayerController2D : NetworkBehaviour
     [SerializeField] AudioClip gemSFX;
     [SerializeField] AudioClip hitSFX;
 
+
+
+    //Haptic Stuff for Controller
+    private Gamepad Gamepad;
+
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        Gamepad = playerInput.devices[0] as Gamepad;
     }
 
     public override void OnNetworkSpawn()
@@ -561,15 +571,72 @@ public class PlayerController2D : NetworkBehaviour
         {
             case StatusEffectType.Ice:
                 effectTimer = iceDuration;
+
+                if(Gamepad is Gamepad gamepad) 
+                {
+                    if(gamepad is DualShockGamepad) 
+                    {
+                        StartCoroutine(HeavyDualShockRumble());
+                    }
+
+                    if(gamepad is DualSenseGamepad) 
+                    {
+                        StartCoroutine(HeavyDualSenseRumble());
+                    }
+
+                    if (gamepad is XInputController) 
+                    {
+                        StartCoroutine(HeavyXboxRumble());
+                    }
+                }
+
                 break;
 
             case StatusEffectType.Fire:
                 effectTimer = fireDuration;
                 forcedMoveDirection = facingRight ? 1f : -1f;
+               
+                if (Gamepad is Gamepad gamepad1)
+                {
+                    if (gamepad1 is DualShockGamepad)
+                    {
+                        StartCoroutine(HeavyDualShockRumble());
+                    }
+
+                    if (gamepad1 is DualSenseGamepad)
+                    {
+                        StartCoroutine(HeavyDualSenseRumble());
+                    }
+
+                    if (gamepad1 is XInputController)
+                    {
+                        StartCoroutine(HeavyXboxRumble());
+                    }
+                }
+
                 break;
 
             case StatusEffectType.Poison:
                 effectTimer = poisonDuration;
+
+                if (Gamepad is Gamepad gamepad2)
+                {
+                    if (gamepad2 is DualShockGamepad)
+                    {
+                        StartCoroutine(HeavyDualShockRumble());
+                    }
+
+                    if (gamepad2 is DualSenseGamepad)
+                    {
+                        StartCoroutine(HeavyDualSenseRumble());
+                    }
+
+                    if (gamepad2 is XInputController)
+                    {
+                        StartCoroutine(HeavyXboxRumble());
+                    }
+                }
+
                 break;
         }
 
@@ -629,6 +696,26 @@ public class PlayerController2D : NetworkBehaviour
         ShootServerRpc(dir, firePoint.position);
 
         shootTimer = shootCooldown;
+
+        if (Gamepad is Gamepad gamepad)
+        {
+            Gamepad = gamepad;
+
+            if (gamepad is DualShockGamepad)
+            {
+                StartCoroutine(DualShockRumble());
+            }
+
+            if (gamepad is DualSenseGamepad)
+            {
+                StartCoroutine(DualSenseRumble());
+            }
+
+            if (gamepad is XInputController)
+            {
+                StartCoroutine(XboxRumble());
+            }
+        }
     }
 
     [ServerRpc]
@@ -738,5 +825,59 @@ public class PlayerController2D : NetworkBehaviour
     public SpellType GetCurrentSpell()
     {
         return currentSpell.Value;
+    }
+
+    public IEnumerator DualShockRumble()
+    {
+        //Gamepad = Gamepad.current;
+        Debug.Log(Gamepad.displayName);
+        Gamepad.SetMotorSpeeds(0.5f, 0.5f);
+        yield return new WaitForSeconds(0.5f);
+        Gamepad.SetMotorSpeeds(0f, 0f);
+    }
+
+    public IEnumerator DualSenseRumble()
+    {
+        //Gamepad = Gamepad.current;
+        Debug.Log(Gamepad.displayName);
+        Gamepad.SetMotorSpeeds(0.3f, 0.3f);
+        yield return new WaitForSeconds(0.5f);
+        Gamepad.SetMotorSpeeds(0f, 0f);
+    }
+
+    public IEnumerator XboxRumble()
+    {
+        //Gamepad = Gamepad.current;
+        Debug.Log(Gamepad.displayName);
+        Gamepad.SetMotorSpeeds(0.6f, 0.6f);
+        yield return new WaitForSeconds(0.5f);
+        Gamepad.SetMotorSpeeds(0f, 0f);
+    }
+
+    public IEnumerator HeavyDualShockRumble()
+    {
+        //Gamepad = Gamepad.current;
+        Debug.Log(Gamepad.displayName);
+        Gamepad.SetMotorSpeeds(0.6f, 0.6f);
+        yield return new WaitForSeconds(0.5f);
+        Gamepad.SetMotorSpeeds(0f, 0f);
+    }
+
+    public IEnumerator HeavyDualSenseRumble()
+    {
+        //Gamepad = Gamepad.current;
+        Debug.Log(Gamepad.displayName);
+        Gamepad.SetMotorSpeeds(0.4f, 0.4f);
+        yield return new WaitForSeconds(0.5f);
+        Gamepad.SetMotorSpeeds(0f, 0f);
+    }
+
+    public IEnumerator HeavyXboxRumble()
+    {
+        //Gamepad = Gamepad.current;
+        Debug.Log(Gamepad.displayName);
+        Gamepad.SetMotorSpeeds(0.7f, 0.7f);
+        yield return new WaitForSeconds(0.5f);
+        Gamepad.SetMotorSpeeds(0f, 0f);
     }
 }
