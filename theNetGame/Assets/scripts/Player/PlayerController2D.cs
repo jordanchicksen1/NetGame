@@ -138,7 +138,6 @@ public class PlayerController2D : NetworkBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        Gamepad = playerInput.devices[0] as Gamepad;
     }
 
     public override void OnNetworkSpawn()
@@ -193,7 +192,7 @@ public class PlayerController2D : NetworkBehaviour
         }
 
         playerInput = GetComponent<PlayerInput>();
-
+        
         playerInput.neverAutoSwitchControlSchemes = true;
         playerInput.user.UnpairDevices();
 
@@ -220,6 +219,16 @@ public class PlayerController2D : NetworkBehaviour
             InputUser.PerformPairingWithDevice(Keyboard.current, playerInput.user);
         }
 #endif
+
+        if (playerInput.user.pairedDevices.Count > 0)
+        {
+            Gamepad = playerInput.user.pairedDevices[0] as Gamepad;
+
+            if (Gamepad != null)
+            {
+                Debug.Log($"Player {OwnerClientId} paired with: {Gamepad.displayName}");
+            }
+        }
 
         moveAction = playerInput.actions["Move"];
         jumpAction = playerInput.actions["Jump"];
