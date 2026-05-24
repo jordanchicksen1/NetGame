@@ -90,6 +90,12 @@ public class PlayerController2D : NetworkBehaviour
     float effectTimer;
     float forcedMoveDirection;
 
+    [Header("Spike Damage")]
+    [SerializeField] float spikeKnockbackForce = 12f;
+    [SerializeField] float spikeHorizontalForce = 4f;
+    [SerializeField] float spikeCooldown = 1f;
+    bool canTakeSpikeDamage = true;
+
     [Header("Coin Stuff")]
     NetworkVariable<int> coinCount = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     [SerializeField] GameObject[] powerUpPrefabs;
@@ -473,6 +479,37 @@ public class PlayerController2D : NetworkBehaviour
             activeEffectVFX = Instantiate(prefab, transform);
             activeEffectVFX.transform.localPosition = Vector3.zero;
         }
+    }
+
+    public void TakeSpikeHit(Vector2 knockbackDir)
+    {
+        if (!IsServer) return;
+
+        if (!canTakeSpikeDamage)
+            return;
+
+
+        DropGem();
+        LoseSpell();
+
+        rb.linearVelocity = Vector2.zero;
+
+        rb.AddForce(
+            knockbackDir.normalized * spikeKnockbackForce,
+            ForceMode2D.Impulse
+        );
+
+        // Start cooldown
+        StartCoroutine(SpikeCooldownRoutine());
+    }
+
+    IEnumerator SpikeCooldownRoutine()
+    {
+        canTakeSpikeDamage = false;
+
+        yield return new WaitForSeconds(spikeCooldown);
+
+        canTakeSpikeDamage = true;
     }
 
     void Flip()
