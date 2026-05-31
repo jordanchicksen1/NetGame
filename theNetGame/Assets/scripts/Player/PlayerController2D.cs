@@ -399,8 +399,13 @@ public class PlayerController2D : NetworkBehaviour
         float newVelocityX = Mathf.MoveTowards(rb.linearVelocity.x, targetSpeed, accel * Time.fixedDeltaTime);
         rb.linearVelocity = new Vector2(newVelocityX, rb.linearVelocity.y);
 
-        if (inputX > 0 && !facingRight) Flip();
-        else if (inputX < 0 && facingRight) Flip();
+        if (!isWallJumping)
+        {
+            if (inputX > 0 && !facingRight)
+                Flip();
+            else if (inputX < 0 && facingRight)
+                Flip();
+        }
 
         if (jumpPressed && isWallSliding)
         {
