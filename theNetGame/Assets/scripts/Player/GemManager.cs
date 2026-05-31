@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using Unity.Netcode;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GemManager : NetworkBehaviour
 {
@@ -9,7 +10,10 @@ public class GemManager : NetworkBehaviour
     [SerializeField] public GameObject gemPrefab;
     [SerializeField] Transform[] spawnPoints;
 
-    int lastSpawnIndex = -1;
+    List<int> recentSpawns = new List<int>();
+
+    [SerializeField]
+    int recentSpawnMemory = 3;
 
     void Awake()
     {
@@ -69,16 +73,27 @@ public class GemManager : NetworkBehaviour
         }
 
         int index;
+        int safetyCounter = 0;
 
         do
         {
             index = Random.Range(0, spawnPoints.Length);
+            safetyCounter++;
         }
-        while (spawnPoints.Length > 1 && index == lastSpawnIndex);
-
-        lastSpawnIndex = index;
+        while (
+            spawnPoints.Length > recentSpawnMemory &&
+            recentSpawns.Contains(index) &&
+            safetyCounter < 100
+        );
 
         Transform spawn = spawnPoints[index];
+
+        recentSpawns.Add(index);
+
+        if (recentSpawns.Count > recentSpawnMemory)
+        {
+            recentSpawns.RemoveAt(0);
+        }
 
         // DEBUG INFO
         Debug.Log(

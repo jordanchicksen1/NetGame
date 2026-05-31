@@ -95,6 +95,7 @@ public class PlayerController2D : NetworkBehaviour
     [SerializeField] float spikeHorizontalForce = 4f;
     [SerializeField] float spikeCooldown = 1f;
     bool canTakeSpikeDamage = true;
+    bool isSpikeKnockback;
 
     [Header("Coin Stuff")]
     NetworkVariable<int> coinCount = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -424,14 +425,18 @@ public class PlayerController2D : NetworkBehaviour
             PlaySFXClientRpc(0);            
         }
 
-        if (rb.linearVelocity.y < 0)
+        if (!isSpikeKnockback)
         {
-            rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime;
+            if (rb.linearVelocity.y < 0)
+            {
+                rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime;
+            }
+            else if (rb.linearVelocity.y > 0 && !jumpHeld)
+            {
+                rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime;
+            }
         }
-        else if (rb.linearVelocity.y > 0 && !jumpHeld)
-        {
-            rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime;
-        }
+
 
         jumpPressed = false;
     }
@@ -492,12 +497,15 @@ public class PlayerController2D : NetworkBehaviour
         DropGem();
         LoseSpell();
 
+        isSpikeKnockback = true;
         rb.linearVelocity = Vector2.zero;
 
         rb.AddForce(
             knockbackDir.normalized * spikeKnockbackForce,
             ForceMode2D.Impulse
         );
+
+        StartCoroutine(EndSpikeKnockback());
 
         // Start cooldown
         StartCoroutine(SpikeCooldownRoutine());
@@ -510,6 +518,13 @@ public class PlayerController2D : NetworkBehaviour
         yield return new WaitForSeconds(spikeCooldown);
 
         canTakeSpikeDamage = true;
+    }
+
+    IEnumerator EndSpikeKnockback()
+    {
+        yield return new WaitForSeconds(0.25f);
+
+        isSpikeKnockback = false;
     }
 
     void Flip()
@@ -557,9 +572,7 @@ public class PlayerController2D : NetworkBehaviour
 
     void HandleWallSlide()
     {
-        bool pushingIntoWall =
-            (isTouchingWall && moveInput.x > 0 && facingRight) ||
-            (isTouchingWall && moveInput.x < 0 && !facingRight);
+        bool pushingIntoWall = isTouchingWall && Mathf.Abs(moveInput.x) > 0.1f;
 
         if (pushingIntoWall && !isGrounded && rb.linearVelocity.y < 0)
         {
@@ -601,7 +614,23 @@ public class PlayerController2D : NetworkBehaviour
 
     void CheckWall()
     {
-        isTouchingWall = Physics2D.Raycast(wallCheck.position, transform.right, wallCheckDistance, groundLayer);
+        Vector2 direction =
+            facingRight ? Vector2.right : Vector2.left;
+
+        RaycastHit2D hit = Physics2D.Raycast(
+            wallCheck.position,
+            -direction,
+            wallCheckDistance,
+            groundLayer
+        );
+
+        isTouchingWall = hit.collider != null;
+
+        Debug.DrawRay(
+            wallCheck.position,
+            direction * wallCheckDistance,
+            isTouchingWall ? Color.green : Color.red
+        );
     }
 
     public void ApplyEffect(StatusEffectType effect)
