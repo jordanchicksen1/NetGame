@@ -1086,7 +1086,7 @@ MonoBehaviour:
   wallCheckDistance: 0.5
   wallSlideSpeed: 4
   wallJumpForce: {x: 7, y: 9}
-  wallJumpControlDelay: 0.15
+  wallJumpControlDelay: 0.2
   flipLockTime: 0.2
   coyoteTime: 0.15
   groundPoundForce: 20

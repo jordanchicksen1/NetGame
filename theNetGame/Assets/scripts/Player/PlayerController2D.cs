@@ -149,6 +149,7 @@ public class PlayerController2D : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        Debug.Log($"OwnerClientId: {OwnerClientId} | IsOwner: {IsOwner}");
         Debug.Log($"Player spawned → Owner: {OwnerClientId}");
 
         Camera playerCam = GetComponentInChildren<Camera>();
@@ -201,21 +202,45 @@ public class PlayerController2D : NetworkBehaviour
         playerInput = GetComponent<PlayerInput>();
         
         playerInput.neverAutoSwitchControlSchemes = true;
-        playerInput.user.UnpairDevices();
+        
+        //playerInput.user.UnpairDevices();
+
+       
 
         var gamepads = Gamepad.all;
+        for (int i = 0; i < gamepads.Count; i++)
+        {
+            Debug.Log(
+                $"Gamepad {i}: {gamepads[i].displayName}"
+            );
+        }
 
 #if UNITY_EDITOR
         int playerIndex = (int)OwnerClientId;
 
         if (playerIndex < gamepads.Count)
         {
-            InputUser.PerformPairingWithDevice(gamepads[playerIndex], playerInput.user);
+            playerInput.SwitchCurrentControlScheme(
+                gamepads[playerIndex]
+            );
+
+            Debug.Log(
+                $"Player {OwnerClientId} assigned to: " +
+                $"{gamepads[playerIndex].displayName}"
+            );
         }
         else if (gamepads.Count > 0)
         {
-            InputUser.PerformPairingWithDevice(gamepads[0], playerInput.user);
+            playerInput.SwitchCurrentControlScheme(
+                gamepads[0]
+            );
+
+            Debug.Log(
+                $"Player {OwnerClientId} fallback to: " +
+                $"{gamepads[0].displayName}"
+            );
         }
+        
 #else
         if (gamepads.Count > 0)
         {
@@ -233,13 +258,27 @@ public class PlayerController2D : NetworkBehaviour
 
             if (Gamepad != null)
             {
-                Debug.Log($"Player {OwnerClientId} paired with: {Gamepad.displayName}");
+                Debug.Log(
+                    $"Player {OwnerClientId} paired with {Gamepad.displayName}"
+                );
+
+                StartCoroutine(TestController());
             }
         }
+
+        playerInput.ActivateInput();
+
+        Debug.Log($"Player {OwnerClientId} Input Activated");
 
         moveAction = playerInput.actions["Move"];
         jumpAction = playerInput.actions["Jump"];
         shootAction = playerInput.actions["Shoot"];
+
+        Debug.Log($"Player {OwnerClientId} Move Action Found: {moveAction != null}");
+
+        Debug.Log($"Player {OwnerClientId} Jump Action Found: {jumpAction != null}");
+
+        Debug.Log($"Player {OwnerClientId} Shoot Action Found: {shootAction != null}");
 
         Camera mainCam = Camera.main;
 
@@ -256,11 +295,30 @@ public class PlayerController2D : NetworkBehaviour
             camFollow.target = transform;
     }
 
+    IEnumerator TestController()
+    {
+        yield return new WaitForSeconds(2f);
+
+        Debug.Log(
+            $"Controller Connected: {Gamepad != null}"
+        );
+    }
+
     void Update()
     {
         if (!IsOwner) return;
 
         moveInput = moveAction.ReadValue<Vector2>();
+        
+        if (Gamepad != null)
+        {
+            if (Gamepad.buttonSouth.wasPressedThisFrame)
+            {
+                Debug.Log(
+                    $"Player {OwnerClientId} received Gamepad buttonSouth"
+                );
+            }
+        }
 
         bool walking = Mathf.Abs(moveInput.x) > 0.1f && isGrounded;
         
@@ -288,6 +346,17 @@ public class PlayerController2D : NetworkBehaviour
         if (moveInput.y < -0.5f)
         {
             downPressed = true;
+        }
+
+        if (!IsOwner) return;
+
+        moveInput = moveAction.ReadValue<Vector2>();
+
+        if (moveInput != Vector2.zero)
+        {
+            Debug.Log(
+                $"Player {OwnerClientId} Input: {moveInput}"
+            );
         }
     }
 
@@ -652,7 +721,7 @@ public class PlayerController2D : NetworkBehaviour
             case StatusEffectType.Ice:
                 effectTimer = iceDuration;
 
-                if(Gamepad is Gamepad gamepad) 
+               /* if(Gamepad is Gamepad gamepad) 
                 {
                     if(gamepad is DualShockGamepad) 
                     {
@@ -668,7 +737,7 @@ public class PlayerController2D : NetworkBehaviour
                     {
                         StartCoroutine(HeavyXboxRumble());
                     }
-                }
+                }*/
 
                 break;
 
@@ -676,7 +745,7 @@ public class PlayerController2D : NetworkBehaviour
                 effectTimer = fireDuration;
                 forcedMoveDirection = facingRight ? 1f : -1f;
                
-                if (Gamepad is Gamepad gamepad1)
+                /*if (Gamepad is Gamepad gamepad1)
                 {
                     if (gamepad1 is DualShockGamepad)
                     {
@@ -692,14 +761,14 @@ public class PlayerController2D : NetworkBehaviour
                     {
                         StartCoroutine(HeavyXboxRumble());
                     }
-                }
+                }*/
 
                 break;
 
             case StatusEffectType.Poison:
                 effectTimer = poisonDuration;
 
-                if (Gamepad is Gamepad gamepad2)
+               /* if (Gamepad is Gamepad gamepad2)
                 {
                     if (gamepad2 is DualShockGamepad)
                     {
@@ -715,7 +784,7 @@ public class PlayerController2D : NetworkBehaviour
                     {
                         StartCoroutine(HeavyXboxRumble());
                     }
-                }
+                }*/
 
                 break;
         }
@@ -777,7 +846,7 @@ public class PlayerController2D : NetworkBehaviour
 
         shootTimer = shootCooldown;
 
-        if (Gamepad is Gamepad gamepad)
+        /*if (Gamepad is Gamepad gamepad)
         {
             Gamepad = gamepad;
 
@@ -795,7 +864,7 @@ public class PlayerController2D : NetworkBehaviour
             {
                 StartCoroutine(XboxRumble());
             }
-        }
+        }*/
     }
 
     [ServerRpc]
