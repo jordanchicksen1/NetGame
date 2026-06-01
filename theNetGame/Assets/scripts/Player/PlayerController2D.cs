@@ -203,7 +203,7 @@ public class PlayerController2D : NetworkBehaviour
         
         playerInput.neverAutoSwitchControlSchemes = true;
         
-        //playerInput.user.UnpairDevices();
+        playerInput.user.UnpairDevices();
 
        
 
@@ -721,7 +721,7 @@ public class PlayerController2D : NetworkBehaviour
             case StatusEffectType.Ice:
                 effectTimer = iceDuration;
 
-               /* if(Gamepad is Gamepad gamepad) 
+                if(Gamepad is Gamepad gamepad) 
                 {
                     if(gamepad is DualShockGamepad) 
                     {
@@ -737,7 +737,7 @@ public class PlayerController2D : NetworkBehaviour
                     {
                         StartCoroutine(HeavyXboxRumble());
                     }
-                }*/
+                }
 
                 break;
 
@@ -745,7 +745,7 @@ public class PlayerController2D : NetworkBehaviour
                 effectTimer = fireDuration;
                 forcedMoveDirection = facingRight ? 1f : -1f;
                
-                /*if (Gamepad is Gamepad gamepad1)
+                if (Gamepad is Gamepad gamepad1)
                 {
                     if (gamepad1 is DualShockGamepad)
                     {
@@ -761,14 +761,14 @@ public class PlayerController2D : NetworkBehaviour
                     {
                         StartCoroutine(HeavyXboxRumble());
                     }
-                }*/
+                }
 
                 break;
 
             case StatusEffectType.Poison:
                 effectTimer = poisonDuration;
 
-               /* if (Gamepad is Gamepad gamepad2)
+               if (Gamepad is Gamepad gamepad2)
                 {
                     if (gamepad2 is DualShockGamepad)
                     {
@@ -784,7 +784,7 @@ public class PlayerController2D : NetworkBehaviour
                     {
                         StartCoroutine(HeavyXboxRumble());
                     }
-                }*/
+                }
 
                 break;
         }
@@ -846,7 +846,7 @@ public class PlayerController2D : NetworkBehaviour
 
         shootTimer = shootCooldown;
 
-        /*if (Gamepad is Gamepad gamepad)
+        if (Gamepad is Gamepad gamepad)
         {
             Gamepad = gamepad;
 
@@ -864,7 +864,7 @@ public class PlayerController2D : NetworkBehaviour
             {
                 StartCoroutine(XboxRumble());
             }
-        }*/
+        }
     }
 
     [ServerRpc]
