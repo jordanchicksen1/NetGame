@@ -534,7 +534,7 @@ MonoBehaviour:
   UseHalfFloatPrecision: 0
   InLocalSpace: 0
   SwitchTransformSpaceWhenParented: 0
-  Interpolate: 1
+  Interpolate: 0
   SlerpPosition: 0
 --- !u!1 &134446121
 GameObject:
@@ -269738,7 +269738,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   pointA: {fileID: 2061273522}
   pointB: {fileID: 1935080608}
-  speed: 3
+  speed: 1
 --- !u!61 &6058381025269928328
 BoxCollider2D:
   m_ObjectHideFlags: 0
