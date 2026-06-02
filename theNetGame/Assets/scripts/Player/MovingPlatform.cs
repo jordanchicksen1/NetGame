@@ -1,5 +1,5 @@
-using UnityEngine;
 using Unity.Netcode;
+using UnityEngine;
 
 public class MovingPlatform : NetworkBehaviour
 {
@@ -9,26 +9,27 @@ public class MovingPlatform : NetworkBehaviour
 
     [Header("Movement")]
     [SerializeField] float speed = 3f;
+    public Vector2 Velocity { get; private set; }
+
 
     bool movingToB = true;
 
+    Vector3 previousPosition;
+    Vector2 platformVelocity;
+
     void Start()
     {
-        Debug.Log("platform started");
-
         if (pointA != null)
         {
             transform.position = pointA.position;
         }
+
+        previousPosition = transform.position;
     }
 
     void Update()
     {
-        Debug.Log("moving platform update");
-
         if (!IsServer) return;
-
-        Debug.Log($"IsServer: {IsServer}");
 
         if (pointA == null || pointB == null)
             return;
@@ -36,23 +37,44 @@ public class MovingPlatform : NetworkBehaviour
         Transform target =
             movingToB ? pointB : pointA;
 
-        transform.position = Vector3.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
+        transform.position = Vector3.MoveTowards(
+            transform.position,
+            target.position,
+            speed * Time.deltaTime
+        );
 
         if (Vector3.Distance(transform.position, target.position) < 0.05f)
         {
             movingToB = !movingToB;
         }
-
-
-        //Debug.Log($"Current Pos: {transform.position} | " + $"Target Pos: {(movingToB ? pointB.position : pointA.position)});
     }
 
-    void OnCollisionEnter2D(Collision2D collision)
+    void LateUpdate()
+    {
+        platformVelocity = (transform.position - previousPosition) / Time.deltaTime;
+        Velocity = platformVelocity;
+        previousPosition = transform.position;
+    }
+
+    void OnCollisionStay2D(Collision2D collision)
     {
         if (!collision.gameObject.CompareTag("Player"))
             return;
 
-        collision.transform.SetParent(transform);
+        foreach (var contact in collision.contacts)
+        {
+            if (contact.normal.y < -0.5f)
+            {
+                PlayerController2D player =  collision.gameObject.GetComponent<PlayerController2D>();
+
+                if (player != null)
+                {
+                    player.SetPlatformVelocity(platformVelocity);
+                }
+
+                break;
+            }
+        }
     }
 
     void OnCollisionExit2D(Collision2D collision)
@@ -60,6 +82,11 @@ public class MovingPlatform : NetworkBehaviour
         if (!collision.gameObject.CompareTag("Player"))
             return;
 
-        collision.transform.SetParent(null);
+        PlayerController2D player = collision.gameObject.GetComponent<PlayerController2D>();
+
+        if (player != null)
+        {
+            player.ClearPlatformVelocity();
+        }
     }
 }

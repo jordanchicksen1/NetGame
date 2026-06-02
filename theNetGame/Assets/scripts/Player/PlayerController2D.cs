@@ -24,6 +24,8 @@ public class PlayerController2D : NetworkBehaviour
     [SerializeField] float lowJumpMultiplier = 3.5f;
     bool jumpHeld;
     bool facingRight = true;
+    Vector2 platformVelocity;
+    bool onMovingPlatform;
     NetworkVariable<bool> netFacingRight = new NetworkVariable<bool>(writePerm: NetworkVariableWritePermission.Owner);
 
     [Header("Wall Movement")]
@@ -465,8 +467,21 @@ public class PlayerController2D : NetworkBehaviour
         float targetSpeed = inputX * maxSpeed;
         float accel = isGrounded ? groundAcceleration : airAcceleration;
 
-        float newVelocityX = Mathf.MoveTowards(rb.linearVelocity.x, targetSpeed, accel * Time.fixedDeltaTime);
-        rb.linearVelocity = new Vector2(newVelocityX, rb.linearVelocity.y);
+        float newVelocityX = Mathf.MoveTowards( rb.linearVelocity.x, targetSpeed, accel * Time.fixedDeltaTime);
+
+        if (onMovingPlatform)
+        {
+            newVelocityX += platformVelocity.x;
+        }
+
+        float platformY = 0f;
+
+        if (onMovingPlatform && isGrounded)
+        {
+            platformY = platformVelocity.y;
+        }
+
+        rb.linearVelocity = new Vector2(newVelocityX,rb.linearVelocity.y + platformY);
 
         if (!isWallJumping)
         {
@@ -513,6 +528,18 @@ public class PlayerController2D : NetworkBehaviour
 
 
         jumpPressed = false;
+    }
+
+    public void SetPlatformVelocity(Vector2 velocity)
+    {
+        platformVelocity = velocity;
+        onMovingPlatform = true;
+    }
+
+    public void ClearPlatformVelocity()
+    {
+        platformVelocity = Vector2.zero;
+        onMovingPlatform = false;
     }
 
     void OnEffectChanged(StatusEffectType oldEffect, StatusEffectType newEffect)
