@@ -19,6 +19,11 @@ public class MovingPlatform : NetworkBehaviour
 
     void Start()
     {
+        Debug.Log(
+        $"Platform Start | IsServer={IsServer} | IsHost={IsHost} | IsClient={IsClient}"
+    );
+
+
         if (pointA != null)
         {
             transform.position = pointA.position;
@@ -27,8 +32,17 @@ public class MovingPlatform : NetworkBehaviour
         previousPosition = transform.position;
     }
 
+    public override void OnNetworkSpawn()
+    {
+        Debug.Log(
+            $"Platform Network Spawned | IsServer={IsServer} | IsHost={IsHost} | IsClient={IsClient}"
+        );
+    }
+
     void Update()
     {
+        Debug.Log($"Platform Update. IsServer={IsServer}");
+
         if (!IsServer) return;
 
         DeltaMovement = transform.position - previousPosition;
@@ -44,6 +58,8 @@ public class MovingPlatform : NetworkBehaviour
             target.position,
             speed * Time.deltaTime
         );
+
+        Debug.Log($"Target: {target.name}");
 
         if (Vector3.Distance(transform.position, target.position) < 0.05f)
         {
