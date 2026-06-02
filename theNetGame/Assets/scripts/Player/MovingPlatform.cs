@@ -26,7 +26,7 @@ public class MovingPlatform : NetworkBehaviour
     {
         Debug.Log("moving platform update");
 
-       // if (!IsServer) return;
+        if (!IsServer) return;
 
         Debug.Log($"IsServer: {IsServer}");
 
@@ -43,8 +43,8 @@ public class MovingPlatform : NetworkBehaviour
             movingToB = !movingToB;
         }
 
-        Debug.Log($"Current Pos: {transform.position} | " + $"Target Pos: {(movingToB ? pointB.position : pointA.position)}"
-);
+
+        //Debug.Log($"Current Pos: {transform.position} | " + $"Target Pos: {(movingToB ? pointB.position : pointA.position)});
     }
 
     void OnCollisionEnter2D(Collision2D collision)
