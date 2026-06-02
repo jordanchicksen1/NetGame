@@ -370,6 +370,12 @@ public class PlayerController2D : NetworkBehaviour
 
         if (!IsOwner) return;
 
+        if (currentPlatform != null)
+        {
+            Debug.Log($"Player {OwnerClientId} on platform. IsOwner={IsOwner}. LocalClientId={NetworkManager.Singleton.LocalClientId}");
+            rb.position += (Vector2)currentPlatform.DeltaMovement;
+        }
+
         if (Time.frameCount % 2 == 0)
         {
             CheckGround();

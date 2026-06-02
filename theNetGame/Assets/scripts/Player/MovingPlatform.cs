@@ -31,6 +31,8 @@ public class MovingPlatform : NetworkBehaviour
     {
         if (!IsServer) return;
 
+        DeltaMovement = transform.position - previousPosition;
+
         if (pointA == null || pointB == null)
             return;
 
@@ -47,14 +49,11 @@ public class MovingPlatform : NetworkBehaviour
         {
             movingToB = !movingToB;
         }
-    }
-
-    void LateUpdate()
-    {
-        DeltaMovement = transform.position - previousPosition;
 
         previousPosition = transform.position;
     }
+
+    
 
     void OnCollisionStay2D(Collision2D collision)
     {
