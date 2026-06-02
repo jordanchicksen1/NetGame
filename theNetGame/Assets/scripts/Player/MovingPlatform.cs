@@ -14,6 +14,8 @@ public class MovingPlatform : NetworkBehaviour
 
     void Start()
     {
+        Debug.Log("platform started");
+
         if (pointA != null)
         {
             transform.position = pointA.position;
@@ -22,7 +24,11 @@ public class MovingPlatform : NetworkBehaviour
 
     void Update()
     {
-        if (!IsServer) return;
+        Debug.Log("moving platform update");
+
+       // if (!IsServer) return;
+
+        Debug.Log($"IsServer: {IsServer}");
 
         if (pointA == null || pointB == null)
             return;
@@ -30,18 +36,15 @@ public class MovingPlatform : NetworkBehaviour
         Transform target =
             movingToB ? pointB : pointA;
 
-        transform.position = Vector3.MoveTowards(
-            transform.position,
-            target.position,
-            speed * Time.deltaTime
-        );
+        transform.position = Vector3.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
 
-        if (Vector3.Distance(
-            transform.position,
-            target.position) < 0.05f)
+        if (Vector3.Distance(transform.position, target.position) < 0.05f)
         {
             movingToB = !movingToB;
         }
+
+        Debug.Log($"Current Pos: {transform.position} | " + $"Target Pos: {(movingToB ? pointB.position : pointA.position)}"
+);
     }
 
     void OnCollisionEnter2D(Collision2D collision)
