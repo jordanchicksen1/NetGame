@@ -9,13 +9,13 @@ public class MovingPlatform : NetworkBehaviour
 
     [Header("Movement")]
     [SerializeField] float speed = 3f;
-    public Vector2 Velocity { get; private set; }
+    
 
 
     bool movingToB = true;
 
     Vector3 previousPosition;
-    Vector2 platformVelocity;
+    public Vector3 DeltaMovement { get; private set; }
 
     void Start()
     {
@@ -51,8 +51,8 @@ public class MovingPlatform : NetworkBehaviour
 
     void LateUpdate()
     {
-        platformVelocity = (transform.position - previousPosition) / Time.deltaTime;
-        Velocity = platformVelocity;
+        DeltaMovement = transform.position - previousPosition;
+
         previousPosition = transform.position;
     }
 
@@ -65,11 +65,12 @@ public class MovingPlatform : NetworkBehaviour
         {
             if (contact.normal.y < -0.5f)
             {
-                PlayerController2D player =  collision.gameObject.GetComponent<PlayerController2D>();
+                PlayerController2D player =
+                    collision.gameObject.GetComponent<PlayerController2D>();
 
                 if (player != null)
                 {
-                    player.SetPlatformVelocity(platformVelocity);
+                    player.SetCurrentPlatform(this);
                 }
 
                 break;
@@ -82,11 +83,13 @@ public class MovingPlatform : NetworkBehaviour
         if (!collision.gameObject.CompareTag("Player"))
             return;
 
-        PlayerController2D player = collision.gameObject.GetComponent<PlayerController2D>();
+        PlayerController2D player =
+            collision.gameObject.GetComponent<PlayerController2D>();
 
         if (player != null)
         {
-            player.ClearPlatformVelocity();
+            player.ClearCurrentPlatform();
         }
     }
+
 }
