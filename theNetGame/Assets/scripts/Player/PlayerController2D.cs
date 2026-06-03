@@ -13,6 +13,7 @@ public class PlayerController2D : NetworkBehaviour
     InputAction moveAction;
     InputAction jumpAction;
     InputAction shootAction;
+    InputAction hideAction;
 
     [Header("Movement")]
     [SerializeField] float moveSpeed = 8f;
@@ -97,6 +98,11 @@ public class PlayerController2D : NetworkBehaviour
     [SerializeField] float spikeCooldown = 1f;
     bool canTakeSpikeDamage = true;
     bool isSpikeKnockback;
+
+    [Header("Hiding Spot")]
+    bool isHidden;
+    HidingSpot nearbyHidingSpot;
+    HidingSpot currentHidingSpot;
 
     [Header("Coin Stuff")]
     NetworkVariable<int> coinCount = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -291,6 +297,7 @@ public class PlayerController2D : NetworkBehaviour
         moveAction = playerInput.actions["Move"];
         jumpAction = playerInput.actions["Jump"];
         shootAction = playerInput.actions["Shoot"];
+        hideAction = playerInput.actions["Hide"];
 
         Debug.Log($"Player {OwnerClientId} Move Action Found: {moveAction != null}");
 
@@ -359,6 +366,12 @@ public class PlayerController2D : NetworkBehaviour
         if (shootAction.WasPressedThisFrame())
         {
             TryShoot();
+        }
+
+        if (hideAction.WasPressedThisFrame())
+        {
+            Debug.Log($"Player {OwnerClientId} pressed Hide");
+            TryHide();
         }
 
         if (moveInput.y < -0.5f)
@@ -458,6 +471,7 @@ public class PlayerController2D : NetworkBehaviour
     void ApplyMovement()
     {
         if (isGroundPounding) return;
+        if (isHidden) return;
         if (isWallJumping && wallJumpTimer > 0f) return;
 
         if (currentEffect.Value == StatusEffectType.Ice)
@@ -904,6 +918,7 @@ public class PlayerController2D : NetworkBehaviour
 
     void TryShoot()
     {
+        if (isHidden) return;
         if (currentSpell.Value == SpellType.None) return;
         if (shootTimer > 0f) return;
 
@@ -953,6 +968,69 @@ public class PlayerController2D : NetworkBehaviour
 
         projectile.GetComponent<NetworkObject>().Spawn();
         projectile.GetComponent<Projectile>().Initialize(direction, OwnerClientId);
+    }
+
+    void TryHide()
+    {
+        if (isHidden)
+        {
+            ExitHide();
+            return;
+        }
+
+        if (nearbyHidingSpot == null)
+            return;
+
+        if (nearbyHidingSpot.IsOccupied)
+            return;
+
+        EnterHide(nearbyHidingSpot);
+    }
+
+    void EnterHide(HidingSpot spot)
+    {
+        if (!spot.TryHide(this))
+            return;
+
+        isHidden = true;
+        currentHidingSpot = spot;
+
+        player1Visual.SetActive(false);
+        player2Visual.SetActive(false);
+        player3Visual.SetActive(false);
+        player4Visual.SetActive(false);
+
+        rb.linearVelocity = Vector2.zero;
+    }
+
+    void ExitHide()
+    {
+        isHidden = false;
+
+        if (currentHidingSpot != null)
+        {
+            currentHidingSpot.ExitHide();
+            currentHidingSpot = null;
+        }
+
+        switch (OwnerClientId)
+        {
+            case 0:
+                player1Visual.SetActive(true);
+                break;
+
+            case 1:
+                player2Visual.SetActive(true);
+                break;
+
+            case 2:
+                player3Visual.SetActive(true);
+                break;
+
+            case 3:
+                player4Visual.SetActive(true);
+                break;
+        }
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
@@ -1034,6 +1112,28 @@ public class PlayerController2D : NetworkBehaviour
         if (gemScript != null)
         {
             gemScript.InitializeDrop(OwnerClientId);
+        }
+    }
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        HidingSpot spot =
+            collision.GetComponent<HidingSpot>();
+
+        if (spot != null)
+        {
+            nearbyHidingSpot = spot;
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D collision)
+    {
+        HidingSpot spot =
+            collision.GetComponent<HidingSpot>();
+
+        if (spot == nearbyHidingSpot)
+        {
+            nearbyHidingSpot = null;
         }
     }
 
