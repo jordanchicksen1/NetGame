@@ -116,8 +116,10 @@ public class PlayerController2D : NetworkBehaviour
     bool canBeHit = true;
 
     [Header("Animation Stuff")]
-    [SerializeField] GameObject hostVisual;
-    [SerializeField] GameObject clientVisual;
+    [SerializeField] GameObject player1Visual;
+    [SerializeField] GameObject player2Visual;
+    [SerializeField] GameObject player3Visual;
+    [SerializeField] GameObject player4Visual;
 
     Animator anim;
 
@@ -160,23 +162,36 @@ public class PlayerController2D : NetworkBehaviour
         currentEffect.OnValueChanged += OnEffectChanged;
 
 
-        
-        if (OwnerClientId == NetworkManager.ServerClientId)
+
+        player1Visual.SetActive(false);
+        player2Visual.SetActive(false);
+        player3Visual.SetActive(false);
+        player4Visual.SetActive(false);
+
+        switch (OwnerClientId)
         {
-            hostVisual.SetActive(true);
-            clientVisual.SetActive(false);
+            case 0:
+                player1Visual.SetActive(true);
+                anim = player1Visual.GetComponent<Animator>();
+                break;
 
-            anim = hostVisual.GetComponent<Animator>();
+            case 1:
+                player2Visual.SetActive(true);
+                anim = player2Visual.GetComponent<Animator>();
+                break;
+
+            case 2:
+                player3Visual.SetActive(true);
+                anim = player3Visual.GetComponent<Animator>();
+                break;
+
+            case 3:
+                player4Visual.SetActive(true);
+                anim = player4Visual.GetComponent<Animator>();
+                break;
         }
-        else
-        {
-            hostVisual.SetActive(false);
-            clientVisual.SetActive(true);
 
-            anim = clientVisual.GetComponent<Animator>();
-        }
 
-        
         if (anim == null)
         {
             Debug.LogError("Animator NOT FOUND on visual!");

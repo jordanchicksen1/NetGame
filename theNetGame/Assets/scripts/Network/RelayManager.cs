@@ -37,7 +37,7 @@ public class RelayManager : MonoBehaviour
         }
 
         Debug.Log("Creating allocation...");
-        Allocation allocation = await RelayService.Instance.CreateAllocationAsync(2);
+        Allocation allocation = await RelayService.Instance.CreateAllocationAsync(3);
 
         Debug.Log("Getting join code...");
         string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
