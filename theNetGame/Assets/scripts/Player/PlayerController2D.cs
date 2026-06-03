@@ -582,40 +582,53 @@ public class PlayerController2D : NetworkBehaviour
 
     public void TakeSpikeHit(Vector2 knockbackDir)
     {
-        Debug.Log("1");
+        Debug.Log($"TakeSpikeHit | Owner={OwnerClientId} | IsOwner={IsOwner} | IsServer={IsServer}");
 
         if (!IsServer) return;
-
-        Debug.Log("2");
-
-        if (!canTakeSpikeDamage)
-            return;
-
-        Debug.Log("3");
-
+        
+        if (!canTakeSpikeDamage) return;
+        
         DropGem();
-
-        Debug.Log("4");
-
+       
         LoseSpell();
 
-        Debug.Log("5");
-
-        isSpikeKnockback = true;
-
-        Debug.Log("6");
-
-        rb.linearVelocity = Vector2.zero;
-
-        Debug.Log("7");
-
-        rb.linearVelocity = knockbackDir.normalized * spikeKnockbackForce;
-
-        Debug.Log("8");
-
-        StartCoroutine(EndSpikeKnockback());
+        ApplySpikeKnockbackClientRpc(knockbackDir,
+    
+        new ClientRpcParams
+    {
+        Send = new ClientRpcSendParams
+        {
+            TargetClientIds =
+                new ulong[] { OwnerClientId }
+        }
+    });
 
         StartCoroutine(SpikeCooldownRoutine());
+    }
+
+    [ClientRpc]
+    void ApplySpikeKnockbackClientRpc(
+    Vector2 knockbackDir,
+    ClientRpcParams clientRpcParams = default)
+    {
+        Debug.Log(
+            $"ApplySpikeKnockbackClientRpc | Owner={OwnerClientId} | IsOwner={IsOwner}"
+        );
+
+        if (!IsOwner)
+            return;
+
+        if (anim != null)
+        {
+            anim.SetBool("Hit", true);
+        }
+        isSpikeKnockback = true;
+
+        rb.linearVelocity = Vector2.zero;
+        rb.linearVelocity =
+            knockbackDir.normalized * spikeKnockbackForce;
+
+        StartCoroutine(EndSpikeKnockback());
     }
 
     IEnumerator SpikeCooldownRoutine()
@@ -630,6 +643,11 @@ public class PlayerController2D : NetworkBehaviour
     IEnumerator EndSpikeKnockback()
     {
         yield return new WaitForSeconds(0.25f);
+
+        if (anim != null)
+        {
+            anim.SetBool("Hit", false);
+        }
 
         isSpikeKnockback = false;
     }
