@@ -153,6 +153,8 @@ public class PlayerController2D : NetworkBehaviour
         Debug.Log($"OwnerClientId: {OwnerClientId} | IsOwner: {IsOwner}");
         Debug.Log($"Player spawned → Owner: {OwnerClientId}");
 
+        Debug.Log($"Player {OwnerClientId} | IsOwner={IsOwner} | BodyType={rb.bodyType}");
+
         Camera playerCam = GetComponentInChildren<Camera>();
 
         currentEffect.OnValueChanged += OnEffectChanged;
@@ -580,29 +582,39 @@ public class PlayerController2D : NetworkBehaviour
 
     public void TakeSpikeHit(Vector2 knockbackDir)
     {
+        Debug.Log("1");
+
         if (!IsServer) return;
+
+        Debug.Log("2");
 
         if (!canTakeSpikeDamage)
             return;
 
+        Debug.Log("3");
 
         DropGem();
+
+        Debug.Log("4");
+
         LoseSpell();
 
+        Debug.Log("5");
+
         isSpikeKnockback = true;
+
+        Debug.Log("6");
+
         rb.linearVelocity = Vector2.zero;
 
-        Debug.Log($"SPIKE HIT -> Player {OwnerClientId}");
-
-        Debug.Log($"RB NULL? {rb == null}");
+        Debug.Log("7");
 
         rb.linearVelocity = knockbackDir.normalized * spikeKnockbackForce;
 
-        Debug.Log($"After knockback velocity: {rb.linearVelocity}");
+        Debug.Log("8");
 
         StartCoroutine(EndSpikeKnockback());
 
-        // Start cooldown
         StartCoroutine(SpikeCooldownRoutine());
     }
 
