@@ -592,10 +592,13 @@ public class PlayerController2D : NetworkBehaviour
         isSpikeKnockback = true;
         rb.linearVelocity = Vector2.zero;
 
-        rb.AddForce(
-            knockbackDir.normalized * spikeKnockbackForce,
-            ForceMode2D.Impulse
-        );
+        Debug.Log($"SPIKE HIT -> Player {OwnerClientId}");
+
+        Debug.Log($"RB NULL? {rb == null}");
+
+        rb.linearVelocity = knockbackDir.normalized * spikeKnockbackForce;
+
+        Debug.Log($"After knockback velocity: {rb.linearVelocity}");
 
         StartCoroutine(EndSpikeKnockback());
 
