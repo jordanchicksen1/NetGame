@@ -16,7 +16,7 @@ public class CoinUI : MonoBehaviour
             return;
         }
 
-        coinText.text = $"Coins: {player.GetCoinCount()} / 8";
+        coinText.text = $"{player.GetCoinCount()}/8";
     }
 
     void FindLocalPlayer()

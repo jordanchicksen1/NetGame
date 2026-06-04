@@ -36,6 +36,6 @@ public class GemUI : MonoBehaviour
     {
         if (player == null) return;
 
-        gemText.text = $"Gems: {player.GetGemCount()} / 10";
+        gemText.text = $"{player.GetGemCount()}/10";
     }
 }
