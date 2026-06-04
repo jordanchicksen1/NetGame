@@ -103,6 +103,9 @@ public class PlayerController2D : NetworkBehaviour
     bool isHidden;
     HidingSpot nearbyHidingSpot;
     HidingSpot currentHidingSpot;
+    int playerLayer;
+    int hiddenPlayerLayer;
+    NetworkVariable<bool> netHidden = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     [Header("Coin Stuff")]
     NetworkVariable<int> coinCount = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -154,6 +157,9 @@ public class PlayerController2D : NetworkBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+
+        playerLayer = LayerMask.NameToLayer("Player");
+        hiddenPlayerLayer = LayerMask.NameToLayer("HiddenPlayer");
     }
 
     public override void OnNetworkSpawn()
@@ -166,7 +172,7 @@ public class PlayerController2D : NetworkBehaviour
         Camera playerCam = GetComponentInChildren<Camera>();
 
         currentEffect.OnValueChanged += OnEffectChanged;
-
+        netHidden.OnValueChanged += OnHiddenChanged;
 
 
         player1Visual.SetActive(false);
@@ -1005,10 +1011,7 @@ public class PlayerController2D : NetworkBehaviour
         isHidden = true;
         currentHidingSpot = spot;
 
-        player1Visual.SetActive(false);
-        player2Visual.SetActive(false);
-        player3Visual.SetActive(false);
-        player4Visual.SetActive(false);
+        SetHiddenServerRpc(true);
 
         rb.linearVelocity = Vector2.zero;
     }
@@ -1023,24 +1026,46 @@ public class PlayerController2D : NetworkBehaviour
             currentHidingSpot = null;
         }
 
+        SetHiddenServerRpc(false);
+    }
+
+    void ApplyHiddenVisuals(bool hidden)
+    {
+        bool visible = !hidden;
+
         switch (OwnerClientId)
         {
             case 0:
-                player1Visual.SetActive(true);
+                player1Visual.SetActive(visible);
                 break;
 
             case 1:
-                player2Visual.SetActive(true);
+                player2Visual.SetActive(visible);
                 break;
 
             case 2:
-                player3Visual.SetActive(true);
+                player3Visual.SetActive(visible);
                 break;
 
             case 3:
-                player4Visual.SetActive(true);
+                player4Visual.SetActive(visible);
                 break;
         }
+
+        gameObject.layer = hidden ? hiddenPlayerLayer : playerLayer;
+
+        Debug.Log($"Player {OwnerClientId} Layer = {LayerMask.LayerToName(gameObject.layer)}");
+    }
+
+    void OnHiddenChanged(bool oldValue, bool newValue)
+    {
+        ApplyHiddenVisuals(newValue);
+    }
+
+    [ServerRpc]
+    void SetHiddenServerRpc(bool hidden)
+    {
+        netHidden.Value = hidden;
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
