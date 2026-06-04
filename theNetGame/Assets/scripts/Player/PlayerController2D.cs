@@ -972,18 +972,28 @@ public class PlayerController2D : NetworkBehaviour
 
     void TryHide()
     {
+        Debug.Log("TryHide called");
+
         if (isHidden)
         {
+            Debug.Log("Exiting hide");
             ExitHide();
             return;
         }
 
         if (nearbyHidingSpot == null)
+        {
+            Debug.Log("No nearby hiding spot");
             return;
+        }
 
         if (nearbyHidingSpot.IsOccupied)
+        {
+            Debug.Log("Spot occupied");
             return;
+        }
 
+        Debug.Log("Entering hide");
         EnterHide(nearbyHidingSpot);
     }
 
