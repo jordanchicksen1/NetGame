@@ -9,6 +9,8 @@ public class HidingSpot : NetworkBehaviour
 
     public bool TryHide(PlayerController2D player)
     {
+        Debug.Log($"TryHide | IsServer={IsServer}");
+
         if (IsOccupied)
             return false;
 
@@ -25,14 +27,21 @@ public class HidingSpot : NetworkBehaviour
 
     public void BreakSpot()
     {
+        Debug.Log($"BreakSpot called. Occupant is null? {Occupant == null}");
+
         if (!IsServer)
             return;
 
-        if (Occupant != null)
-        {
-            Occupant.ForceExitHide();
-        }
+        if (Occupant == null)
+            return;
+
+        Occupant.ForceExitHide();
 
         GetComponent<NetworkObject>().Despawn();
+    }
+
+    public void SetOccupant(PlayerController2D player)
+    {
+        Occupant = player;
     }
 }

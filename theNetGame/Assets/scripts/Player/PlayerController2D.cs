@@ -1020,8 +1020,16 @@ public class PlayerController2D : NetworkBehaviour
 
         isHidden = true;
         currentHidingSpot = spot;
+        RegisterHidingSpotServerRpc(spot.GetComponent<NetworkObject>().NetworkObjectId);
 
-        SetHiddenServerRpc(true);
+        if (IsServer)
+        {
+            netHidden.Value = true;
+        }
+        else
+        {
+            SetHiddenServerRpc(true);
+        }
 
         rb.linearVelocity = Vector2.zero;
     }
@@ -1036,14 +1044,37 @@ public class PlayerController2D : NetworkBehaviour
             currentHidingSpot = null;
         }
 
-        SetHiddenServerRpc(false);
+        if (IsServer)
+        {
+            netHidden.Value = false;
+        }
+        else
+        {
+            SetHiddenServerRpc(false);
+        }
     }
 
     public void ForceExitHide()
     {
-        ExitHide();
+        ForceExitHideClientRpc(
+            new ClientRpcParams
+            {
+                Send = new ClientRpcSendParams
+                {
+                    TargetClientIds =
+                        new ulong[] { OwnerClientId }
+                }
+            });
     }
 
+    [ClientRpc]
+    void ForceExitHideClientRpc(ClientRpcParams clientRpcParams = default)
+    {
+        if (!IsOwner)
+            return;
+
+        ExitHide();
+    }
     void ApplyHiddenVisuals(bool hidden)
     {
         bool visible = !hidden;
@@ -1103,6 +1134,26 @@ public class PlayerController2D : NetworkBehaviour
     void SetHiddenServerRpc(bool hidden)
     {
         netHidden.Value = hidden;
+    }
+
+    [ServerRpc]
+    void RegisterHidingSpotServerRpc(ulong hidingSpotNetworkId)
+    {
+        Debug.Log($"SERVER REGISTERED OCCUPANT {OwnerClientId}");
+
+        if (!NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(
+            hidingSpotNetworkId,
+            out NetworkObject hidingSpotObj))
+        {
+            return;
+        }
+
+        HidingSpot hidingSpot = hidingSpotObj.GetComponent<HidingSpot>();
+
+        if (hidingSpot != null)
+        {
+            hidingSpot.SetOccupant(this);
+        }
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
