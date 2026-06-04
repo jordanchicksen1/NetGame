@@ -6,6 +6,7 @@ using UnityEngine.InputSystem.Users;
 using UnityEngine.InputSystem.DualShock;
 using UnityEngine.InputSystem.XInput;
 using System.Collections;
+using TMPro;
 
 public class PlayerController2D : NetworkBehaviour
 {
@@ -106,6 +107,8 @@ public class PlayerController2D : NetworkBehaviour
     int playerLayer;
     int hiddenPlayerLayer;
     NetworkVariable<bool> netHidden = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    [SerializeField] GameObject hidePromptCanvas;
+    [SerializeField] TMP_Text hidePromptText;
 
     [Header("Coin Stuff")]
     NetworkVariable<int> coinCount = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -179,6 +182,7 @@ public class PlayerController2D : NetworkBehaviour
         player2Visual.SetActive(false);
         player3Visual.SetActive(false);
         player4Visual.SetActive(false);
+        hidePromptCanvas.SetActive(false);
 
         switch (OwnerClientId)
         {
@@ -395,6 +399,8 @@ public class PlayerController2D : NetworkBehaviour
                 $"Player {OwnerClientId} Input: {moveInput}"
             );
         }
+
+        UpdateHidePrompt();
     }
 
     void FixedUpdate()
@@ -704,6 +710,10 @@ public class PlayerController2D : NetworkBehaviour
         Vector3 scale = transform.localScale;
         scale.x = facingRight ? Mathf.Abs(scale.x) : -Mathf.Abs(scale.x);
         transform.localScale = scale;
+
+        Vector3 uiScale = hidePromptCanvas.transform.localScale;
+        uiScale.x = facingRight ? 1 : -1;
+        hidePromptCanvas.transform.localScale = uiScale;
     }
 
     void OnFacingDirectionChanged(bool previousValue, bool newValue)
@@ -1060,6 +1070,28 @@ public class PlayerController2D : NetworkBehaviour
         gameObject.layer = hidden ? hiddenPlayerLayer : playerLayer;
 
         Debug.Log($"Player {OwnerClientId} Layer = {LayerMask.LayerToName(gameObject.layer)}");
+    }
+
+    void UpdateHidePrompt()
+    {
+        if (!IsOwner)
+            return;
+
+        if (isHidden)
+        {
+            hidePromptCanvas.SetActive(true);
+            hidePromptText.text = "COME OUT";
+            return;
+        }
+
+        if (nearbyHidingSpot != null)
+        {
+            hidePromptCanvas.SetActive(true);
+            hidePromptText.text = "HIDE";
+            return;
+        }
+
+        hidePromptCanvas.SetActive(false);
     }
 
     void OnHiddenChanged(bool oldValue, bool newValue)
