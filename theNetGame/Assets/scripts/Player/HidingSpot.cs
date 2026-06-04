@@ -20,4 +20,19 @@ public class HidingSpot : NetworkBehaviour
     {
         Occupant = null;
     }
+
+
+
+    public void BreakSpot()
+    {
+        if (!IsServer)
+            return;
+
+        if (Occupant != null)
+        {
+            Occupant.ForceExitHide();
+        }
+
+        GetComponent<NetworkObject>().Despawn();
+    }
 }

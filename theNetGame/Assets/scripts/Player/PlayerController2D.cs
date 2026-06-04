@@ -1029,6 +1029,11 @@ public class PlayerController2D : NetworkBehaviour
         SetHiddenServerRpc(false);
     }
 
+    public void ForceExitHide()
+    {
+        ExitHide();
+    }
+
     void ApplyHiddenVisuals(bool hidden)
     {
         bool visible = !hidden;

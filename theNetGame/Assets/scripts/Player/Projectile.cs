@@ -82,6 +82,27 @@ public class Projectile : NetworkBehaviour
             return;
         }
 
+        Collider2D[] hits = Physics2D.OverlapCircleAll(nextPosition, 0.5f);
+
+        foreach (var hit in hits)
+        {
+            Debug.Log($"Projectile found: {hit.name}");
+
+            HidingSpot hidingSpot =
+                hit.GetComponent<HidingSpot>();
+
+            if (hidingSpot != null)
+            {
+                Debug.Log("PROJECTILE HIT HIDING SPOT");
+
+                hidingSpot.BreakSpot();
+
+                GetComponent<NetworkObject>().Despawn();
+
+                return;
+            }
+        }
+
         transform.position = nextPosition;
     }
 
@@ -95,6 +116,17 @@ public class Projectile : NetworkBehaviour
 
         if (netObj != null && netObj.OwnerClientId == ownerClientId)
         {
+            return;
+        }
+
+        HidingSpot hidingSpot = hitObject.GetComponent<HidingSpot>();
+
+        if (hidingSpot != null)
+        {
+            hidingSpot.BreakSpot();
+
+            GetComponent<NetworkObject>().Despawn();
+
             return;
         }
 
