@@ -111,11 +111,43 @@ public class MainMenu : MonoBehaviour
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        Debug.Log($"Loaded scene: {scene.name}");
+
+        if (menuPanel == null)
+        {
+            Debug.LogError("Menu Panel is NULL!");
+            return;
+        }
+
+        
+
         if (scene.name == "Game")
         {
-            if (menuPanel != null)
+            menuPanel.SetActive(false);
+
+            Debug.Log("Disabled menu panel for Game scene");
+        }
+        else if (scene.name == "MainMenu")
+        {
+            Debug.Log("RESETTING MAIN MENU UI");
+            Debug.Log($"StatusText exists: {statusText != null}");
+            Debug.Log($"JoinCodeText exists: {joinCodeText != null}");
+            Debug.Log($"JoinCodeInput exists: {joinCodeInput != null}");
+
+            menuPanel.SetActive(true);
+
+            if (statusText != null)
+                statusText.text = "Not connected";
+
+            if (joinCodeText != null)
             {
-                menuPanel.SetActive(false);
+                joinCodeText.text = "";
+                joinCodeText.gameObject.SetActive(false);
+            }
+
+            if (joinCodeInput != null)
+            {
+                joinCodeInput.text = "";
             }
         }
     }

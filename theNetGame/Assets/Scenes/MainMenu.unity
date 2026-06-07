@@ -583,6 +583,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 886983365400596159, guid: dd1d5f347d4c7394bb0f3b7475d7c39e, type: 3}
+      propertyPath: menuCanvas
+      value: 
+      objectReference: {fileID: 448634320}
     - target: {fileID: 1540725241013396068, guid: dd1d5f347d4c7394bb0f3b7475d7c39e, type: 3}
       propertyPath: NetworkConfig.PlayerPrefab
       value: 

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1540725241013396068}
   - component: {fileID: 8643831134638659119}
   - component: {fileID: 4880674899264320166}
+  - component: {fileID: 886983365400596159}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -119,3 +120,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0f640738aec4a248be766a8ee31e77b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkManagerPersist
+--- !u!114 &886983365400596159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4524153135272064631}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f878e69b8212b54e98e8ec8821b92b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MenuCanvasReviver
+  menuCanvas: {fileID: 0}

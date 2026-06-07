@@ -15,7 +15,7 @@ public class PodiumSlot
     public TextMeshProUGUI gemCount;
 }
 
-public class WinUI : MonoBehaviour
+public class WinUI : NetworkBehaviour 
 {
     public class PlayerResult
     {
@@ -173,15 +173,53 @@ public class WinUI : MonoBehaviour
         }
     }
 
+    [ClientRpc]
+    void LoadMainMenuClientRpc()
+    {
+        Time.timeScale = 1f;
+
+        NetworkManager.Singleton.Shutdown();
+
+        SceneManager.LoadScene(
+            "MainMenu",
+            LoadSceneMode.Single);
+    }
+
     public void ReturnToLobby()
     {
         Debug.Log("Return to Lobby has been pressed");
-        Time.timeScale = 1f;
 
         if (NetworkManager.Singleton.IsHost)
         {
-            NetworkManager.Singleton.SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
+            LoadMainMenuClientRpc();
+
+            Time.timeScale = 1f;
+
+            NetworkManager.Singleton.Shutdown();
+
+            SceneManager.LoadScene(
+                "MainMenu",
+                LoadSceneMode.Single);
         }
+        else
+        {
+            RequestReturnToLobbyRpc();
+        }
+    }
+
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    void RequestReturnToLobbyRpc()
+    {
+        LoadMainMenuClientRpc();
+
+        Time.timeScale = 1f;
+
+        NetworkManager.Singleton.Shutdown();
+
+        SceneManager.LoadScene(
+            "MainMenu",
+            LoadSceneMode.Single);
     }
 
     public void QuitGame()
