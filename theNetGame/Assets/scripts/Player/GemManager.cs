@@ -2,6 +2,7 @@
 using Unity.Netcode;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 
 public class GemManager : NetworkBehaviour
 {
@@ -38,7 +39,29 @@ public class GemManager : NetworkBehaviour
         if (player.GetGemCount() >= 10)
         {
             Debug.Log($"PLAYER {player.OwnerClientId + 1} WINS!");
-            ShowWinClientRpc(player.OwnerClientId);
+            PlayerController2D[] players =
+    FindObjectsByType<PlayerController2D>(
+        FindObjectsSortMode.None
+    );
+
+            List<PlayerResultData> results =
+                new List<PlayerResultData>();
+
+            foreach (var p in players)
+            {
+                results.Add(
+                    new PlayerResultData
+                    {
+                        playerId = p.OwnerClientId,
+                        gemCount = p.GetGemCount()
+                    });
+            }
+
+            results.Sort(
+                (a, b) => b.gemCount.CompareTo(a.gemCount)
+            );
+
+            ShowWinClientRpc(results.ToArray());
             return;
         }
 
@@ -51,9 +74,9 @@ public class GemManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    void ShowWinClientRpc(ulong winnerId)
+    void ShowWinClientRpc(PlayerResultData[] results)
     {
-        WinUI.Instance.ShowWin(winnerId);
+        WinUI.Instance.ShowWin(results);
     }
 
     IEnumerator SpawnGemWithDelay(float delay)
@@ -134,6 +157,19 @@ public class GemManager : NetworkBehaviour
         foreach (var block in FindObjectsByType<QuestionBlock>(FindObjectsSortMode.None))
         {
             block.ResetBlock();
+        }
+    }
+
+    public struct PlayerResultData : INetworkSerializable
+    {
+        public ulong playerId;
+        public int gemCount;
+
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer)
+            where T : IReaderWriter
+        {
+            serializer.SerializeValue(ref playerId);
+            serializer.SerializeValue(ref gemCount);
         }
     }
 }
