@@ -3,6 +3,7 @@ using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using static GemManager;
 
 [System.Serializable]
@@ -34,6 +35,8 @@ public class WinUI : MonoBehaviour
     [SerializeField] Sprite player2Sprite;
     [SerializeField] Sprite player3Sprite;
     [SerializeField] Sprite player4Sprite;
+    [SerializeField] GameObject confettiPrefab;
+    [SerializeField] Transform confettiContainer;
 
 
     void Awake()
@@ -47,6 +50,7 @@ public class WinUI : MonoBehaviour
     public void ShowWin(PlayerResultData[] results)
     {
         panel.SetActive(true);
+        MusicManager.Instance.PlayVictoryMusic();
 
         List<PlayerResult> leaderboard =
             new List<PlayerResult>();
@@ -62,6 +66,7 @@ public class WinUI : MonoBehaviour
         }
 
         PopulatePodium(leaderboard);
+        SpawnConfetti(GetWinnerColor(results[0].playerId));
 
         winText.text =
             $" Player {results[0].playerId + 1} Wins! ";
@@ -122,8 +127,55 @@ public class WinUI : MonoBehaviour
         }
     }
 
+    void SpawnConfetti(Color color)
+    {
+        for (int i = 0; i < 100; i++)
+        {
+            GameObject piece = Instantiate(confettiPrefab, confettiContainer);
+
+            RectTransform rect = piece.GetComponent<RectTransform>();
+
+            RectTransform containerRect = confettiContainer.GetComponent<RectTransform>();
+
+            float width = containerRect.rect.width;
+            float height = containerRect.rect.height;
+
+            rect.anchoredPosition = new Vector2(Random.Range( -width * 0.5f, width * 0.5f), height * 0.5f + Random.Range(0f, 200f));
+
+            Image image = piece.GetComponent<Image>();
+
+            image.color = color;
+
+            Debug.Log($"Container Width: {width}");
+            Debug.Log($"Container Height: {height}");
+        }
+        
+    }
+
+    Color GetWinnerColor(ulong playerId)
+    {
+        switch (playerId)
+        {
+            case 0:
+                return Color.blue;
+
+            case 1:
+                return Color.red;
+
+            case 2:
+                return Color.green;
+
+            case 3:
+                return Color.yellow;
+
+            default:
+                return Color.white;
+        }
+    }
+
     public void ReturnToLobby()
     {
+        Debug.Log("Return to Lobby has been pressed");
         Time.timeScale = 1f;
 
         if (NetworkManager.Singleton.IsHost)

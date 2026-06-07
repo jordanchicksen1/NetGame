@@ -211562,6 +211562,41 @@ Transform:
   - {fileID: 491592104}
   m_Father: {fileID: 200793421}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &596612690
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 596612691}
+  m_Layer: 5
+  m_Name: confettiConatainer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &596612691
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 596612690}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2094311965}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &597294973
 GameObject:
   m_ObjectHideFlags: 0
@@ -223577,6 +223612,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1691042271}
   - component: {fileID: 1691042270}
+  - component: {fileID: 1691042272}
   m_Layer: 0
   m_Name: backgroundMusic
   m_TagString: Untagged
@@ -223696,6 +223732,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1691042272
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1691042269}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33874ecb05c80024caeafe4ab0d5fd97, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MusicManager
+  musicSource: {fileID: 1691042270}
+  gameplayMusic: {fileID: 8300000, guid: ce6d7967fb1a5b6459b7f755cec04f6e, type: 3}
+  victoryMusic: {fileID: 8300000, guid: e2b084329f2a02c4a89ff342dc16f09b, type: 3}
 --- !u!1 &1698204619
 GameObject:
   m_ObjectHideFlags: 0
@@ -231802,6 +231853,7 @@ RectTransform:
   - {fileID: 1528187652}
   - {fileID: 215762875}
   - {fileID: 733014469}
+  - {fileID: 596612691}
   m_Father: {fileID: 2107589349}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -232071,6 +232123,8 @@ MonoBehaviour:
   player2Sprite: {fileID: 6026685723601414010, guid: b8aac58752cc0a145a04aacc1284a613, type: 3}
   player3Sprite: {fileID: -7800385525148755452, guid: aa19f7d864bb9e84ca2ead37b11923c0, type: 3}
   player4Sprite: {fileID: 1265435480992175867, guid: 0212b9d5dd6b9434fab340141366ad75, type: 3}
+  confettiPrefab: {fileID: 7163663378705150522, guid: d775f556260cfed4cb6e1ab3b1827de0, type: 3}
+  confettiContainer: {fileID: 596612691}
 --- !u!114 &2107589353
 MonoBehaviour:
   m_ObjectHideFlags: 0
