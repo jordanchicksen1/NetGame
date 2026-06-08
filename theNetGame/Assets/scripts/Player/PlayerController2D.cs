@@ -459,10 +459,12 @@ public class PlayerController2D : NetworkBehaviour
         bool walking = Mathf.Abs(rb.linearVelocity.x) > 0.1f && isGrounded;
         bool jumping = !isGrounded && rb.linearVelocity.y > 0.1f;
         bool sliding = isWallSliding;
+        //bool walljump = isWallJumping;
 
         anim.SetBool("Walking", walking);
         anim.SetBool("Jumping", jumping);
         anim.SetBool("Sliding", sliding);
+       // anim.SetBool("WallJump", walljump);
 
         
     }
