@@ -1537,7 +1537,7 @@ MonoBehaviour:
   coinSFX: {fileID: 8300000, guid: 8f96d5a22da15ef479fb41eaeea2890d, type: 3}
   powerUpSFX: {fileID: 8300000, guid: 6d5fe40c738e2474b8e8e12e575565e6, type: 3}
   gemSFX: {fileID: 8300000, guid: a3d3fff7f1cb62d498a9c796c53503d9, type: 3}
-  hitSFX: {fileID: 8300000, guid: 08d0bf5522d65ca428abcd6242c12023, type: 3}
+  hitSFX: {fileID: 8300000, guid: 935a874e841086b49925e38a65f2d0a8, type: 3}
 --- !u!114 &8317571695755250899
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1679,6 +1679,10 @@ MonoBehaviour:
       ParameterType: 4
     - name: Sliding
       NameHash: -1078995872
+      Synchronize: 1
+      ParameterType: 4
+    - name: WallJump
+      NameHash: 305217982
       Synchronize: 1
       ParameterType: 4
   AnimatorParametersExpanded: 0

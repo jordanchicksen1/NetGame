@@ -641,6 +641,8 @@ public class PlayerController2D : NetworkBehaviour
        
         LoseSpell();
 
+        PlaySFXClientRpc(4);
+
         ApplySpikeKnockbackClientRpc(knockbackDir,
     
         new ClientRpcParams
