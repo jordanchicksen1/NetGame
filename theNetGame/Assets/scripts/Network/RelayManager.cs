@@ -75,14 +75,14 @@ public class RelayManager : MonoBehaviour
         Debug.Log("Joining allocation...");
         JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
 
-        Debug.Log($"NetworkManager.Singleton = {NetworkManager.Singleton}");
 
         if (NetworkManager.Singleton == null)
         {
             Debug.LogError("NETWORK MANAGER IS NULL");
-            return;
+            return ;
         }
 
+        Debug.Log($"NetworkManager.Singleton = {NetworkManager.Singleton}");
         var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
 
         Debug.Log($"Transport = {transport}");
