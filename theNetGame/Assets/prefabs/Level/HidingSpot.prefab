@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2335587043
+  GlobalObjectIdHash: 4151902233
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -178,3 +178,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HidingSpot
   ShowTopMostFoldoutHeaderGroup: 1
+  hideSound: {fileID: 8300000, guid: 49b7f69b353d7884b8fc722ac1232c6f, type: 3}
+  exitSound: {fileID: 8300000, guid: 49b7f69b353d7884b8fc722ac1232c6f, type: 3}
+  breakSound: {fileID: 8300000, guid: d28c0f27f374e114c8fe302e66922e7f, type: 3}
+  breakParticlesPrefab: {fileID: 2979710626312709443, guid: 6c443640da2bd644b9a4fe41e64ffe82, type: 3}
