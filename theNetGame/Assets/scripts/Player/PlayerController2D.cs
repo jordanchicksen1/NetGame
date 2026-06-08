@@ -24,6 +24,7 @@ public class PlayerController2D : NetworkBehaviour
     [SerializeField] float maxSpeed = 8f;
     [SerializeField] float fallMultiplier = 2.5f;
     [SerializeField] float lowJumpMultiplier = 3.5f;
+    public static bool CanMove = false;
     bool jumpHeld;
     bool facingRight = true;
     MovingPlatform currentPlatform;
@@ -342,6 +343,7 @@ public class PlayerController2D : NetworkBehaviour
     void Update()
     {
         if (!IsOwner) return;
+        if (!CanMove) return;
 
         moveInput = moveAction.ReadValue<Vector2>();
         
@@ -411,6 +413,12 @@ public class PlayerController2D : NetworkBehaviour
         }
 
         if (!IsOwner) return;
+
+        if (!CanMove)
+        {
+            rb.linearVelocity = Vector2.zero;
+            return;
+        }
 
         if (currentPlatform != null)
         {
