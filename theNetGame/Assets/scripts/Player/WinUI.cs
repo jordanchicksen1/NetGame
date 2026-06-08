@@ -180,9 +180,9 @@ public class WinUI : NetworkBehaviour
 
         NetworkManager.Singleton.Shutdown();
 
-        SceneManager.LoadScene(
-            "MainMenu",
-            LoadSceneMode.Single);
+        SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
+
+        Debug.Log("CLIENT LOADING MAIN MENU");
     }
 
     public void ReturnToLobby()

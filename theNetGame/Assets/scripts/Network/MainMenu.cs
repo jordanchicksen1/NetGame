@@ -15,6 +15,8 @@ public class MainMenu : MonoBehaviour
     {
         if (statusText != null)
             statusText.text = "Not connected";
+        
+        Debug.Log("MAIN MENU START");
     }
 
     // ================= HOST =================
