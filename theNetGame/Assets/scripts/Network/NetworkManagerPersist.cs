@@ -4,6 +4,11 @@ public class NetworkManagerPersist : MonoBehaviour
 {
     static bool alreadyExists = false;
 
+    public static void ResetPersistence()
+    {
+        alreadyExists = false;
+    }
+
     void Awake()
     {
         if (alreadyExists)

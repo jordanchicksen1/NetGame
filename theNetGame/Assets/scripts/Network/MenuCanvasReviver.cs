@@ -1,27 +1,21 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class MenuCanvasReviver : MonoBehaviour
 {
-    [SerializeField] GameObject menuCanvas;
-
-    void OnEnable()
+    void Awake()
     {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
+        Canvas canvas = FindFirstObjectByType<Canvas>(FindObjectsInactive.Include);
 
-    void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-
-    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        if (scene.name == "MainMenu")
+        if (canvas != null)
         {
-            menuCanvas.SetActive(true);
+            canvas.gameObject.SetActive(true);
+
 
             Debug.Log("MENU CANVAS RE-ENABLED");
+        }
+        else
+        {
+            Debug.LogError("No Canvas found!");
         }
     }
 }

@@ -575,71 +575,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 55138423}
   m_CullTransparentMesh: 1
---- !u!1001 &55927929
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 886983365400596159, guid: dd1d5f347d4c7394bb0f3b7475d7c39e, type: 3}
-      propertyPath: menuCanvas
-      value: 
-      objectReference: {fileID: 448634320}
-    - target: {fileID: 1540725241013396068, guid: dd1d5f347d4c7394bb0f3b7475d7c39e, type: 3}
-      propertyPath: NetworkConfig.PlayerPrefab
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 3223034155263871780, guid: dd1d5f347d4c7394bb0f3b7475d7c39e, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 1.75027
-      objectReference: {fileID: 0}
-    - target: {fileID: 3223034155263871780, guid: dd1d5f347d4c7394bb0f3b7475d7c39e, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0.95423
-      objectReference: {fileID: 0}
-    - target: {fileID: 3223034155263871780, guid: dd1d5f347d4c7394bb0f3b7475d7c39e, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3223034155263871780, guid: dd1d5f347d4c7394bb0f3b7475d7c39e, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3223034155263871780, guid: dd1d5f347d4c7394bb0f3b7475d7c39e, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3223034155263871780, guid: dd1d5f347d4c7394bb0f3b7475d7c39e, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3223034155263871780, guid: dd1d5f347d4c7394bb0f3b7475d7c39e, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3223034155263871780, guid: dd1d5f347d4c7394bb0f3b7475d7c39e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3223034155263871780, guid: dd1d5f347d4c7394bb0f3b7475d7c39e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3223034155263871780, guid: dd1d5f347d4c7394bb0f3b7475d7c39e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4524153135272064631, guid: dd1d5f347d4c7394bb0f3b7475d7c39e, type: 3}
-      propertyPath: m_Name
-      value: NetworkManager
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: dd1d5f347d4c7394bb0f3b7475d7c39e, type: 3}
 --- !u!1 &56188297
 GameObject:
   m_ObjectHideFlags: 0
@@ -3771,6 +3706,8 @@ GameObject:
   m_Component:
   - component: {fileID: 558634725}
   - component: {fileID: 558634724}
+  - component: {fileID: 558634726}
+  - component: {fileID: 558634727}
   m_Layer: 0
   m_Name: backgroundMusic
   m_TagString: Untagged
@@ -3890,6 +3827,31 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &558634726
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 558634723}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f73709459c1b14c42a4108fcae319afb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetworkManagerSpawner
+  networkManagerPrefab: {fileID: 5557133547593986143, guid: e8e71ebe0e6a04848acf4d9a18d5d0c3, type: 3}
+--- !u!114 &558634727
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 558634723}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f878e69b8212b54e98e8ec8821b92b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MenuCanvasReviver
 --- !u!1 &566356608
 GameObject:
   m_ObjectHideFlags: 0
@@ -12165,6 +12127,5 @@ SceneRoots:
   - {fileID: 1390126511}
   - {fileID: 448634324}
   - {fileID: 569921575}
-  - {fileID: 55927929}
   - {fileID: 558634725}
   - {fileID: 1168262095}

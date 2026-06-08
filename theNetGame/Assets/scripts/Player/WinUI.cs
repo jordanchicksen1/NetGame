@@ -4,6 +4,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.Collections;
 using static GemManager;
 
 [System.Serializable]
@@ -176,13 +177,9 @@ public class WinUI : NetworkBehaviour
     [ClientRpc]
     void LoadMainMenuClientRpc()
     {
-        Time.timeScale = 1f;
-
-        NetworkManager.Singleton.Shutdown();
-
-        SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
-
-        Debug.Log("CLIENT LOADING MAIN MENU");
+        Debug.Log("CLIENT RECEIVED RETURN TO LOBBY RPC");
+        StartCoroutine(
+            ShutdownAndReturnToMenu());
     }
 
     public void ReturnToLobby()
@@ -193,13 +190,7 @@ public class WinUI : NetworkBehaviour
         {
             LoadMainMenuClientRpc();
 
-            Time.timeScale = 1f;
-
-            NetworkManager.Singleton.Shutdown();
-
-            SceneManager.LoadScene(
-                "MainMenu",
-                LoadSceneMode.Single);
+            StartCoroutine(ShutdownAndReturnToMenu());
         }
         else
         {
@@ -213,13 +204,33 @@ public class WinUI : NetworkBehaviour
     {
         LoadMainMenuClientRpc();
 
+        StartCoroutine(ShutdownAndReturnToMenu());
+    }
+
+    IEnumerator ShutdownAndReturnToMenu()
+    {
         Time.timeScale = 1f;
 
-        NetworkManager.Singleton.Shutdown();
+        ShutdownNetwork();
+
+        yield return null;
+        yield return null;
 
         SceneManager.LoadScene(
             "MainMenu",
             LoadSceneMode.Single);
+    }
+
+    void ShutdownNetwork()
+    {
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.Shutdown();
+
+            //NetworkManagerPersist.ResetPersistence();
+
+            //Destroy(NetworkManager.Singleton.gameObject);
+        }
     }
 
     public void QuitGame()
