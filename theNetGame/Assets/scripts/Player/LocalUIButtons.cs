@@ -10,6 +10,9 @@ public class LocalUIButtons : MonoBehaviour
     public GameObject instruction1;
     public GameObject instruction2;
     public GameObject instruction3;
+    public GameObject instruction4;
+    public GameObject instruction5;
+    public GameObject instruction6;
     public void StartButton()
     {
         StartCoroutine(StartTheGame());
@@ -48,6 +51,9 @@ public class LocalUIButtons : MonoBehaviour
         instruction1.SetActive(true);
         instruction2.SetActive(false);
         instruction3.SetActive(false);
+        instruction4.SetActive(false);
+        instruction5.SetActive(false);
+        instruction6.SetActive(false);
     }
 
     public void nextInstruction1()
@@ -55,6 +61,9 @@ public class LocalUIButtons : MonoBehaviour
         instruction1.SetActive(false);
         instruction2.SetActive(true);
         instruction3.SetActive(false);
+        instruction4.SetActive(false);
+        instruction5.SetActive(false);
+        instruction6.SetActive(false);
     }
 
     public void nextInstruction2()
@@ -62,6 +71,9 @@ public class LocalUIButtons : MonoBehaviour
         instruction1.SetActive(false);
         instruction2.SetActive(false);
         instruction3.SetActive(true);
+        instruction4.SetActive(false);
+        instruction5.SetActive(false);
+        instruction6.SetActive(false);
     }
 
     public void previousInstruction2()
@@ -69,6 +81,19 @@ public class LocalUIButtons : MonoBehaviour
         instruction1.SetActive(true);
         instruction2.SetActive(false);
         instruction3.SetActive(false);
+        instruction4.SetActive(false);
+        instruction5.SetActive(false);
+        instruction6.SetActive(false);
+    }
+
+    public void nextInstruction3()
+    {
+        instruction1.SetActive(false);
+        instruction2.SetActive(false);
+        instruction3.SetActive(false);
+        instruction4.SetActive(true);
+        instruction5.SetActive(false);
+        instruction6.SetActive(false);
     }
 
     public void previousInstruction3()
@@ -76,6 +101,59 @@ public class LocalUIButtons : MonoBehaviour
         instruction1.SetActive(false);
         instruction2.SetActive(true);
         instruction3.SetActive(false);
+        instruction4.SetActive(false);
+        instruction5.SetActive(false);
+        instruction6.SetActive(false);
+    }
+
+    public void nextInstruction4()
+    {
+        instruction1.SetActive(false);
+        instruction2.SetActive(false);
+        instruction3.SetActive(false);
+        instruction4.SetActive(false);
+        instruction5.SetActive(true);
+        instruction6.SetActive(false);
+    }
+
+    public void previousInstruction4()
+    {
+        instruction1.SetActive(false);
+        instruction2.SetActive(false);
+        instruction3.SetActive(true);
+        instruction4.SetActive(false);
+        instruction5.SetActive(false);
+        instruction6.SetActive(false);
+    }
+
+    public void nextInstruction5()
+    {
+        instruction1.SetActive(false);
+        instruction2.SetActive(false);
+        instruction3.SetActive(false);
+        instruction4.SetActive(false);
+        instruction5.SetActive(false);
+        instruction6.SetActive(true);
+    }
+
+    public void previousInstruction5()
+    {
+        instruction1.SetActive(false);
+        instruction2.SetActive(false);
+        instruction3.SetActive(false);
+        instruction4.SetActive(true);
+        instruction5.SetActive(false);
+        instruction6.SetActive(false);
+    }
+
+    public void previousInstruction6()
+    {
+        instruction1.SetActive(false);
+        instruction2.SetActive(false);
+        instruction3.SetActive(false);
+        instruction4.SetActive(false);
+        instruction5.SetActive(true);
+        instruction6.SetActive(false);
     }
 
     public void ExitHowToPlayButton()
@@ -84,5 +162,8 @@ public class LocalUIButtons : MonoBehaviour
         instruction1.SetActive(false);
         instruction2.SetActive(false);
         instruction3.SetActive(false);
+        instruction4.SetActive(false);
+        instruction5.SetActive(false);
+        instruction6.SetActive(false);
     }
 }
